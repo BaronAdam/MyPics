@@ -1,0 +1,10 @@
+MyPics.Api/bin/
+MyPics.Api/obj/
+MyPics.Domain/obj/
+MyPics.Domain/bin/
+MyPics.Infrastructure/bin/
+MyPics.Infrastructure/obj/
+.idea/
+*.info
+.vscode/
+.vs/
