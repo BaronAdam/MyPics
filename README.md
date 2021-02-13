@@ -5,6 +5,8 @@ Application for adding original pictures and videos.
 ```bash
 cd MyPics.Infrastructure
 dotnet ef --startup-project ../MyPics.Api/ migrations add [name]
+dotnet ef --startup-project ../MyPics.Api/ migrations list
+dotnet ef --startup-project ../MyPics.Api/ database update [name/0]
 ```
 ## Docker
 ```
