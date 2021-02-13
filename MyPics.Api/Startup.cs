@@ -35,6 +35,7 @@ namespace MyPics.Api
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<MyPicsDbContext>();
+                context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
 

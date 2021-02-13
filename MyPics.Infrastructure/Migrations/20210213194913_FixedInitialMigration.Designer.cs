@@ -10,8 +10,8 @@ using MyPics.Infrastructure.Persistence;
 namespace MyPics.Infrastructure.Migrations
 {
     [DbContext(typeof(MyPicsDbContext))]
-    [Migration("20210213173930_FixBadModels")]
-    partial class FixBadModels
+    [Migration("20210213194913_FixedInitialMigration")]
+    partial class FixedInitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,9 +40,14 @@ namespace MyPics.Infrastructure.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Comments");
                 });
@@ -56,6 +61,8 @@ namespace MyPics.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("CommentId", "UserId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("CommentLikes");
                 });
@@ -85,6 +92,12 @@ namespace MyPics.Infrastructure.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DateRead")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateSent")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsPhoto")
                         .HasColumnType("bit");
 
@@ -98,6 +111,8 @@ namespace MyPics.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RecipientId");
 
                     b.HasIndex("UserId");
 
@@ -160,6 +175,8 @@ namespace MyPics.Infrastructure.Migrations
 
                     b.HasKey("PostId", "UserId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("PostLikes");
                 });
 
@@ -201,16 +218,34 @@ namespace MyPics.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MyPics.Domain.Models.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyPics.Domain.Models.CommentLike", b =>
                 {
-                    b.HasOne("MyPics.Domain.Models.Comment", null)
+                    b.HasOne("MyPics.Domain.Models.Comment", "Comment")
                         .WithMany("Likes")
                         .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("MyPics.Domain.Models.User", "User")
+                        .WithMany("CommentLikes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyPics.Domain.Models.Follow", b =>
@@ -234,11 +269,19 @@ namespace MyPics.Infrastructure.Migrations
 
             modelBuilder.Entity("MyPics.Domain.Models.Message", b =>
                 {
-                    b.HasOne("MyPics.Domain.Models.User", "User")
-                        .WithMany("Messages")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("MyPics.Domain.Models.User", "Recipient")
+                        .WithMany("MessagesRecieved")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("MyPics.Domain.Models.User", "User")
+                        .WithMany("MessagesSent")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Recipient");
 
                     b.Navigation("User");
                 });
@@ -267,11 +310,21 @@ namespace MyPics.Infrastructure.Migrations
 
             modelBuilder.Entity("MyPics.Domain.Models.PostLike", b =>
                 {
-                    b.HasOne("MyPics.Domain.Models.Post", null)
+                    b.HasOne("MyPics.Domain.Models.Post", "Post")
                         .WithMany("Likes")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("MyPics.Domain.Models.User", "User")
+                        .WithMany("PostLikes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyPics.Domain.Models.Comment", b =>
@@ -290,11 +343,19 @@ namespace MyPics.Infrastructure.Migrations
 
             modelBuilder.Entity("MyPics.Domain.Models.User", b =>
                 {
+                    b.Navigation("CommentLikes");
+
+                    b.Navigation("Comments");
+
                     b.Navigation("Followers");
 
                     b.Navigation("Following");
 
-                    b.Navigation("Messages");
+                    b.Navigation("MessagesRecieved");
+
+                    b.Navigation("MessagesSent");
+
+                    b.Navigation("PostLikes");
 
                     b.Navigation("Posts");
                 });

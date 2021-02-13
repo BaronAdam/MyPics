@@ -14,8 +14,12 @@ namespace MyPics.Domain.Models
         [Encrypted] public string ProfilePictureUrl { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
-        public virtual ICollection<Message> Messages { get; set; }
+        public virtual ICollection<Message> MessagesSent { get; set; }
+        public virtual ICollection<Message> MessagesRecieved { get; set; }
         public virtual ICollection<Follow> Following { get; set; }
         public virtual ICollection<Follow> Followers { get; set; }
+        public virtual ICollection<CommentLike> CommentLikes { get; set; }
+        public virtual ICollection<PostLike> PostLikes { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }
