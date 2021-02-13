@@ -4,6 +4,12 @@ MyPics.Domain/obj/
 MyPics.Domain/bin/
 MyPics.Infrastructure/bin/
 MyPics.Infrastructure/obj/
+MyPics.Api.Tests/bin/
+MyPics.Api.Tests/obj/
+MyPics.Domain.Tests/obj/
+MyPics.Domain.Tests/bin/
+MyPics.Infrastructure.Tests/bin/
+MyPics.Infrastructure.Tests/obj/
 .idea/
 *.info
 .vscode/
