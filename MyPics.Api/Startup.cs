@@ -32,6 +32,13 @@ namespace MyPics.Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<MyPicsDbContext>();
+                context.Database.EnsureCreated();
+            }
+
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
