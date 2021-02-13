@@ -26,4 +26,8 @@
       <Folder Include="Controllers" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\MyPics.Infrastructure\MyPics.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>
