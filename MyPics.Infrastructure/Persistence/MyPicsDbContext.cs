@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.DataEncryption;
 using Microsoft.EntityFrameworkCore.DataEncryption.Providers;
@@ -50,6 +51,41 @@ namespace MyPics.Infrastructure.Persistence
 
             modelBuilder.Entity<CommentLike>()
                 .HasKey(x => new {x.CommentId, x.UserId});
+
+            modelBuilder.Entity<CommentLike>()
+                .HasOne(x => x.Comment)
+                .WithMany(x => x.Likes)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<PostLike>()
+                .HasOne(x => x.Post)
+                .WithMany(x => x.Likes)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<CommentLike>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.CommentLikes)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<PostLike>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.PostLikes)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.Comments)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(x => x.Recipient)
+                .WithMany(x => x.MessagesRecieved)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.MessagesSent)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
