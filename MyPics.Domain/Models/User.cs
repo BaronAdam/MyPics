@@ -15,5 +15,7 @@ namespace MyPics.Domain.Models
 
         public virtual ICollection<Post> Posts { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
+        public virtual ICollection<Follow> Following { get; set; }
+        public virtual ICollection<Follow> Followers { get; set; }
     }
 }
