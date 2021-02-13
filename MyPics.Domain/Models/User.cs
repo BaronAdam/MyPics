@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyPics.Domain.Models
 {
@@ -9,9 +10,8 @@ namespace MyPics.Domain.Models
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
         public string DisplayName { get; set; }
-        public string Email { get; set; }
-        public string ProfilePictureUrl { get; set; }
-        public string PicturePublicId { get; set; }
+        [Encrypted] public string Email { get; set; }
+        [Encrypted] public string ProfilePictureUrl { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
