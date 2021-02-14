@@ -79,7 +79,7 @@ namespace MyPics.Infrastructure.Persistence
 
             modelBuilder.Entity<Message>()
                 .HasOne(x => x.Recipient)
-                .WithMany(x => x.MessagesRecieved)
+                .WithMany(x => x.MessagesReceived)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Message>()
