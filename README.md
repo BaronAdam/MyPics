@@ -2,7 +2,7 @@
 ![.NET](https://github.com/BaronAdam/MyPics/workflows/.NET/badge.svg)  
 Application for adding original pictures and videos.
 
-## Adding migrations
+## Managing migrations
 ```bash
 cd MyPics.Infrastructure
 dotnet ef --startup-project ../MyPics.Api/ migrations add [name]
