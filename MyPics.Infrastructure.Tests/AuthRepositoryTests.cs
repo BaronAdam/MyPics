@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -142,7 +141,7 @@ namespace MyPics.Infrastructure.Tests
         [TestCase("notExistingTestUsername1", "notExistingTestPassword1")]
         [TestCase("notExistingTestUsername2", "notExistingTestPassword2")]
         [TestCase(null, null)]
-        public async Task Login_NotExistingOrNullCredentials_ReturnsExpectedUser(string username, string password)
+        public async Task Login_NotExistingOrNullCredentials_ReturnsNull(string username, string password)
         {
             var result = await _repository.Login(username, password);
 
