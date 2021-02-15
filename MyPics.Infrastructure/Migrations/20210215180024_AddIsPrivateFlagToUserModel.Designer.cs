@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPics.Infrastructure.Persistence;
 
 namespace MyPics.Infrastructure.Migrations
 {
     [DbContext(typeof(MyPicsDbContext))]
-    partial class MyPicsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210215180024_AddIsPrivateFlagToUserModel")]
+    partial class AddIsPrivateFlagToUserModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
