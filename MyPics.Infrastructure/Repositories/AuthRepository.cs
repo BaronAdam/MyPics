@@ -70,7 +70,7 @@ namespace MyPics.Infrastructure.Repositories
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return false;
+                return true;
             }
         }
 
@@ -83,7 +83,7 @@ namespace MyPics.Infrastructure.Repositories
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return false;
+                return true;
             }
         }
         
