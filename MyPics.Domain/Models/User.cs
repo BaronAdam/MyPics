@@ -12,6 +12,7 @@ namespace MyPics.Domain.Models
         public string DisplayName { get; set; }
         [Encrypted] public string Email { get; set; }
         [Encrypted] public string ProfilePictureUrl { get; set; }
+        public bool IsPrivate { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
         public virtual ICollection<Message> MessagesSent { get; set; }

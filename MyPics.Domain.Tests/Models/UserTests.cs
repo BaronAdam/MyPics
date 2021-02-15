@@ -21,6 +21,7 @@ namespace MyPics.Domain.Tests.Models
                 DisplayName = "TestDisplayName",
                 Email = "email@test.com",
                 ProfilePictureUrl = "test.com/test",
+                IsPrivate = true,
                 Posts = new List<Post>(),
                 MessagesSent = new List<Message>(),
                 MessagesReceived = new List<Message>(),
@@ -39,6 +40,7 @@ namespace MyPics.Domain.Tests.Models
             entity.DisplayName.Should().Be("TestDisplayName");
             entity.Email.Should().Be("email@test.com");
             entity.ProfilePictureUrl.Should().Be("test.com/test");
+            entity.IsPrivate.Should().BeTrue();
             entity.Posts.Should().BeEmpty();
             entity.MessagesSent.Should().BeEmpty();
             entity.MessagesReceived.Should().BeEmpty();
