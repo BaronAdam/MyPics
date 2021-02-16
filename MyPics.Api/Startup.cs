@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MyPics.Api.Configuration;
 using MyPics.Infrastructure.Persistence;
 
 namespace MyPics.Api
@@ -25,6 +26,8 @@ namespace MyPics.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            
+            services.ConfigureDependencyInjection();
             
             services.AddDbContext<MyPicsDbContext>(options => options
                 .UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
