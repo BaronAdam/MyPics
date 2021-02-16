@@ -1,5 +1,12 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=788cbf57_002D8f1c_002D46cb_002Db39c_002D4d3b9b257983/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CommentLikeTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Solution /&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=864f91a5_002D209d_002D46e2_002Daa1c_002Ddc12018d0df1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetUserById_NotExistingUser_ReturnsNull" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.UserRepositoryTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.AuthRepositoryTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e3a9b09e_002D5dbc_002D4ad5_002D8db5_002D1f7fc8373df9/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AuthRepositoryTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.AuthRepositoryTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
