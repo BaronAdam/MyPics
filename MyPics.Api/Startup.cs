@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using MyPics.Api.Configuration;
 using MyPics.Infrastructure.Persistence;
 
@@ -27,10 +25,25 @@ namespace MyPics.Api
         {
             services.AddControllers();
             
+            services.ConfigureSwagger();
+            
             services.ConfigureDependencyInjection();
             
             services.AddDbContext<MyPicsDbContext>(options => options
                 .UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                            .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -41,7 +54,14 @@ namespace MyPics.Api
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
             }
+            
+            app.UseSwagger();
 
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyPics");
+                c.RoutePrefix = "swagger";
+            });
             
             if (env.IsDevelopment())
             {
