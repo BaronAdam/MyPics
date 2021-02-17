@@ -14,3 +14,4 @@ MyPics.Infrastructure.Tests/obj/
 *.info
 .vscode/
 .vs/
+MyPics.sln.DotSettings.user
