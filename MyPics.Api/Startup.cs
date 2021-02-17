@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using MyPics.Api.Configuration;
 using MyPics.Infrastructure.Persistence;
+using MyPics.Infrastructure.Persistence.DatabaseSeed;
 
 namespace MyPics.Api
 {
@@ -51,8 +52,10 @@ namespace MyPics.Api
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<MyPicsDbContext>();
+                var databaseSeed = new Seed(context);
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
+                databaseSeed.SeedData();
             }
             
             app.UseSwagger();
