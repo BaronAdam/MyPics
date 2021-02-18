@@ -27,11 +27,13 @@ namespace MyPics.Api
             services.AddControllers();
             
             services.ConfigureSwagger();
-            
-            services.ConfigureDependencyInjection();
-            
+
             services.AddDbContext<MyPicsDbContext>(options => options
                 .UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            
+            services.AddAutoMapper(typeof(Startup).Assembly);
+            
+            services.ConfigureDependencyInjection();
             
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -72,6 +74,9 @@ namespace MyPics.Api
             }
 
             app.UseRouting();
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
