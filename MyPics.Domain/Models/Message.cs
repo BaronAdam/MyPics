@@ -9,7 +9,7 @@ namespace MyPics.Domain.Models
         public int UserId { get; set; }
         public int RecipientId { get; set; }
         public User User { get; set; }
-        public User Recipient { get; set; }
+        public Conversation Conversation { get; set; }
         [Encrypted] public string Content { get; set; }
         public bool IsPhoto { get; set; }
         [Encrypted] public string Url { get; set; }
