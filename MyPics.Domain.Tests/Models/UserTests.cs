@@ -23,8 +23,7 @@ namespace MyPics.Domain.Tests.Models
                 ProfilePictureUrl = "test.com/test",
                 IsPrivate = true,
                 Posts = new List<Post>(),
-                MessagesSent = new List<Message>(),
-                MessagesReceived = new List<Message>(),
+                Messages = new List<Message>(),
                 Following = new List<Follow>(),
                 Followers = new List<Follow>(),
                 CommentLikes = new List<CommentLike>(),
@@ -42,8 +41,7 @@ namespace MyPics.Domain.Tests.Models
             entity.ProfilePictureUrl.Should().Be("test.com/test");
             entity.IsPrivate.Should().BeTrue();
             entity.Posts.Should().BeEmpty();
-            entity.MessagesSent.Should().BeEmpty();
-            entity.MessagesReceived.Should().BeEmpty();
+            entity.Messages.Should().BeEmpty();
             entity.Following.Should().BeEmpty();
             entity.Followers.Should().BeEmpty();
             entity.CommentLikes.Should().BeEmpty();
