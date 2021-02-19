@@ -26,6 +26,8 @@ namespace MyPics.Infrastructure.Persistence
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Follow> Follows { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
+        public DbSet<UserConversation> UserConversations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -77,15 +79,8 @@ namespace MyPics.Infrastructure.Persistence
                 .WithMany(x => x.Comments)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Message>()
-                .HasOne(x => x.Recipient)
-                .WithMany(x => x.MessagesReceived)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Message>()
-                .HasOne(x => x.User)
-                .WithMany(x => x.MessagesSent)
-                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<UserConversation>()
+                .HasKey(x => new {x.UserId, x.ConversationId});
         }
     }
 }

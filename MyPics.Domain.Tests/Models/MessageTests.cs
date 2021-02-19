@@ -20,7 +20,7 @@ namespace MyPics.Domain.Tests.Models
                 UserId = 1,
                 RecipientId = 1,
                 User = new User(),
-                Recipient = new User(),
+                Conversation = new Conversation(),
                 Content = "Test Content",
                 IsPhoto = true,
                 Url = "test.com/test",
@@ -33,7 +33,7 @@ namespace MyPics.Domain.Tests.Models
             entity.UserId.Should().Be(1);
             entity.RecipientId.Should().Be(1);
             entity.User.Should().BeEquivalentTo(new User());
-            entity.Recipient.Should().BeEquivalentTo(new User());
+            entity.Conversation.Should().BeEquivalentTo(new Conversation());
             entity.Content.Should().Be("Test Content");
             entity.IsPhoto.Should().BeTrue();
             entity.Url.Should().Be("test.com/test");
@@ -50,7 +50,7 @@ namespace MyPics.Domain.Tests.Models
                 UserId = 1,
                 RecipientId = 1,
                 User = new User(),
-                Recipient = new User(),
+                Conversation = new Conversation(),
                 Content = "Test Content",
                 IsPhoto = true,
                 Url = "test.com/test",
@@ -62,7 +62,7 @@ namespace MyPics.Domain.Tests.Models
             entity.UserId.Should().Be(1);
             entity.RecipientId.Should().Be(1);
             entity.User.Should().BeEquivalentTo(new User());
-            entity.Recipient.Should().BeEquivalentTo(new User());
+            entity.Conversation.Should().BeEquivalentTo(new Conversation());
             entity.Content.Should().Be("Test Content");
             entity.IsPhoto.Should().BeTrue();
             entity.Url.Should().Be("test.com/test");
@@ -79,7 +79,7 @@ namespace MyPics.Domain.Tests.Models
                 UserId = 1,
                 RecipientId = 1,
                 User = new User(),
-                Recipient = new User(),
+                Conversation = new Conversation(),
                 Content = "Test Content",
                 IsPhoto = true,
                 Url = "test.com/test",
@@ -91,7 +91,7 @@ namespace MyPics.Domain.Tests.Models
             entity.UserId.Should().Be(1);
             entity.RecipientId.Should().Be(1);
             entity.User.Should().BeEquivalentTo(new User());
-            entity.Recipient.Should().BeEquivalentTo(new User());
+            entity.Conversation.Should().BeEquivalentTo(new Conversation());
             entity.Content.Should().Be("Test Content");
             entity.IsPhoto.Should().BeTrue();
             entity.Url.Should().Be("test.com/test");
