@@ -63,9 +63,19 @@ namespace MyPics.Api.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username)
             };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8
-                .GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+            
+            SymmetricSecurityKey key;
+            
+            try
+            {
+                key = new SymmetricSecurityKey(Encoding.UTF8
+                    .GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode((int) HttpStatusCode.InternalServerError);
+            }
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
