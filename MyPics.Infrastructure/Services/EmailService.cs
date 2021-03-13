@@ -27,7 +27,6 @@ namespace MyPics.Infrastructure.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
         }
 
