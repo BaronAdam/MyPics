@@ -28,7 +28,6 @@ namespace MyPics.Infrastructure.Services
                 await smtpClient.AuthenticateAsync(_configuration.UserName, _configuration.Password);
                 await smtpClient.SendAsync(mimeMessage);
                 await smtpClient.DisconnectAsync(true);
-
             }
             catch (Exception e)
             {
