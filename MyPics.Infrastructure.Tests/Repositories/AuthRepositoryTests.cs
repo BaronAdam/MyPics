@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -9,9 +10,8 @@ using MyPics.Domain.Models;
 using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Repositories;
 using NUnit.Framework;
-using FluentAssertions;
 
-namespace MyPics.Infrastructure.Tests
+namespace MyPics.Infrastructure.Tests.Repositories
 {
     [TestFixture]
     public class AuthRepositoryTests
