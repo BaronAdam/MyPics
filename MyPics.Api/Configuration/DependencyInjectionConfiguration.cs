@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MyPics.Infrastructure.Interfaces;
 using MyPics.Infrastructure.Repositories;
+using MyPics.Infrastructure.Services;
 
 namespace MyPics.Api.Configuration
 {
@@ -10,6 +11,7 @@ namespace MyPics.Api.Configuration
         {
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IEmailService, EmailService>();
         }
     }
 }
