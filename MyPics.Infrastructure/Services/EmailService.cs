@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Web;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MyPics.Domain.Email;
 using MyPics.Infrastructure.Interfaces;
@@ -10,11 +11,29 @@ namespace MyPics.Infrastructure.Services
 {
     public class EmailService : IEmailService
     {
+        private readonly SmtpClient _client;
         private readonly EmailConfiguration _configuration;
 
-        public EmailService(EmailConfiguration configuration)
+        public EmailService(IConfiguration configuration)
+        { 
+            _configuration = (EmailConfiguration) configuration.GetSection("EmailConfirmation");
+            
+            _client = new SmtpClient();
+            try
+            {
+                _client.Connect(_configuration.SmtpServer, _configuration.Port, true);
+                _client.Authenticate(_configuration.UserName, _configuration.Password);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        ~EmailService()
         {
-            _configuration = configuration;
+            _client.Disconnect(true);
         }
         
         public async Task<bool> SendEmail(EmailMessage message)
@@ -23,11 +42,7 @@ namespace MyPics.Infrastructure.Services
             
             try
             {
-                var smtpClient = new SmtpClient();
-                await smtpClient.ConnectAsync(_configuration.SmtpServer, _configuration.Port, true);
-                await smtpClient.AuthenticateAsync(_configuration.UserName, _configuration.Password);
-                await smtpClient.SendAsync(mimeMessage);
-                await smtpClient.DisconnectAsync(true);
+                await _client.SendAsync(mimeMessage);
             }
             catch (Exception e)
             {
