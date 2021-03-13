@@ -18,6 +18,7 @@ namespace MyPics.Domain.Tests.Models
                 Username = "TestUsername",
                 PasswordHash = Encoding.Default.GetBytes("TestPasswordHash"),
                 PasswordSalt = Encoding.Default.GetBytes("TestPasswordSalt"),
+                IsConfirmed = true,
                 DisplayName = "TestDisplayName",
                 Email = "email@test.com",
                 ProfilePictureUrl = "test.com/test",
@@ -36,6 +37,7 @@ namespace MyPics.Domain.Tests.Models
             entity.Username.Should().Be("TestUsername");
             entity.PasswordHash.Should().BeEquivalentTo(Encoding.Default.GetBytes("TestPasswordHash"));
             entity.PasswordSalt.Should().BeEquivalentTo(Encoding.Default.GetBytes("TestPasswordSalt"));
+            entity.IsConfirmed.Should().BeTrue();
             entity.DisplayName.Should().Be("TestDisplayName");
             entity.Email.Should().Be("email@test.com");
             entity.ProfilePictureUrl.Should().Be("test.com/test");
