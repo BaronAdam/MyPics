@@ -125,7 +125,8 @@ namespace MyPics.Api.Controllers
         private async Task<bool> SendEmail(User user)
         {
             var emailActionLink = Url.Action("ConfirmEmail", "Auth",
-                new { Token = user.RegistrationToken, Username = user.Username }, Request.Scheme);
+                new {Token = user.RegistrationToken, Username = user.Username},
+                ControllerContext.HttpContext.Request.Scheme);
 
             var message = _emailService.BuildConfirmationMessage(user.Email, user.Username, emailActionLink);
             

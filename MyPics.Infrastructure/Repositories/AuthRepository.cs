@@ -99,16 +99,38 @@ namespace MyPics.Infrastructure.Repositories
 
         public async Task<bool> ConfirmEmail(string token, string username)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            User user;
+            try
+            {
+                user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
 
-            if (user.RegistrationTokenGeneratedTime > DateTime.UtcNow.AddHours(ExpirationTimeInHours)) return false;
+            if (user == null) return false;
+
+            var interval = DateTime.UtcNow - user.RegistrationTokenGeneratedTime;
+            
+            if (interval.Hours >= 3) return false;
 
             if (user.RegistrationToken != token) return false;
 
             user.RegistrationToken = null;
             user.IsConfirmed = true;
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
 
             return true;
         }
