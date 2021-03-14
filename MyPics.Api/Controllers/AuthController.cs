@@ -23,12 +23,15 @@ namespace MyPics.Api.Controllers
         private readonly IAuthRepository _authRepository;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IAuthRepository authRepository, IConfiguration configuration, IMapper mapper)
+        public AuthController(IAuthRepository authRepository, IConfiguration configuration, IMapper mapper, 
+            IEmailService emailService)
         {
             _authRepository = authRepository;
             _configuration = configuration;
             _mapper = mapper;
+            _emailService = emailService;
         }
         
         [HttpPost("register")]
@@ -45,7 +48,11 @@ namespace MyPics.Api.Controllers
 
             var registeredUser = await _authRepository.Register(user, userForRegister.Password);
 
-            return registeredUser == null ? StatusCode((int) HttpStatusCode.InternalServerError) : Ok();
+            if (registeredUser == null) return StatusCode((int) HttpStatusCode.InternalServerError);
+
+            var result = await SendEmail(registeredUser);
+
+            return result ? Ok() : StatusCode((int) HttpStatusCode.InternalServerError);
         }
         
         [HttpPost("login")]
@@ -57,6 +64,14 @@ namespace MyPics.Api.Controllers
             var user = await _authRepository.Login(userForLogin.Username, userForLogin.Password);
 
             if (user == null) return Unauthorized();
+
+            if (!user.IsConfirmed)
+            {
+                var result = await SendEmail(user);
+                
+                return result ? Unauthorized("Please confirm your e-mail address first.") 
+                    : StatusCode((int) HttpStatusCode.InternalServerError);
+            }
 
             var claims = new[]
             {
@@ -94,6 +109,27 @@ namespace MyPics.Api.Controllers
                 new {
                 token = tokenHandler.WriteToken(token)
             });
+        }
+
+        [HttpGet("confirmEmail")]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> ConfirmEmail(string token, string username)
+        {
+            var result = await _authRepository.ConfirmEmail(token, username);
+
+            return result ? Ok("Email confirmed.") : Unauthorized("Verification link is not valid.");
+        }
+
+        private async Task<bool> SendEmail(User user)
+        {
+            var emailActionLink = Url.Action("ConfirmEmail", "Auth",
+                new { Token = user.RegistrationToken, Username = user.Username }, Request.Scheme);
+
+            var message = _emailService.BuildConfirmationMessage(user.Email, user.Username, emailActionLink);
+            
+            return await _emailService.SendEmail(message);
         }
     }
 }

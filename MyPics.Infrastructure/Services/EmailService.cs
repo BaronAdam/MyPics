@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Web;
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MyPics.Domain.Email;
 using MyPics.Infrastructure.Interfaces;
@@ -14,9 +12,9 @@ namespace MyPics.Infrastructure.Services
         private readonly ISmtpClient _client;
         private readonly EmailConfiguration _configuration;
 
-        public EmailService(IConfiguration configuration, ISmtpClient client)
-        { 
-            _configuration = (EmailConfiguration) configuration.GetSection("EmailConfirmation");
+        public EmailService(EmailConfiguration configuration, ISmtpClient client)
+        {
+            _configuration = configuration;
             
             _client = client;
             try
@@ -54,10 +52,9 @@ namespace MyPics.Infrastructure.Services
 
         public EmailMessage BuildConfirmationMessage(string receiver, string username, string confirmationUrl)
         {
-            var messageBody = "Please confirm your account by clicking this link: <a href=\"" 
-                              + confirmationUrl + "\">link</a><br/>";
-            messageBody += HttpUtility.HtmlEncode(@"Or click on the copy the following link on the browser: " 
-                                                  + confirmationUrl);
+            var messageBody = "Please confirm your account by clicking this <a href=\"" 
+                              + confirmationUrl + "\">link</a>. Please note the link is valid for 3 hours.<br/>";
+            messageBody += "Or copy the following link and paste it in address bar in your browser: <br/>" + confirmationUrl;
             
             return new EmailMessage
             {

@@ -9,5 +9,6 @@ namespace MyPics.Infrastructure.Interfaces
         Task<User> Login(string username, string password);
         Task<bool> UserExists(string username);
         Task<bool> EmailExists(string email);
+        Task<bool> ConfirmEmail(string token, string username);
     }
 }

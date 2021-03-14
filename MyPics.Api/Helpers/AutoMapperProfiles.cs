@@ -8,8 +8,7 @@ namespace MyPics.Api.Helpers
     {
         public AutoMapperProfiles()
         {
-            CreateMap<User, UserForRegisterDto>()
-                .ForMember(x => x.Password, y => y.Ignore());
+            CreateMap<UserForRegisterDto, User>();
         }
     }
 }
