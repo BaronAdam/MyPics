@@ -75,9 +75,9 @@ namespace MyPics.Infrastructure.Tests.Repositories
             result.Id.Should().Be(id);
         }
         
-        [TestCase(100)]
-        [TestCase(200)]
-        [TestCase(300)]
+        [TestCase(1000)]
+        [TestCase(2000)]
+        [TestCase(3000)]
         public async Task GetUserById_NotExistingUser_ReturnsNull(int id)
         {
             var result = await _repository.GetUserById(id);
