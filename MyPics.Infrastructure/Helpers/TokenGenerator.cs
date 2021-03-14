@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace MyPics.Infrastructure.Helpers
 {
-    public class TokenGenerator
+    public static class TokenGenerator
     {
         public static string GenerateToken(int size = 32)
         {
