@@ -3,11 +3,23 @@
   &lt;Assembly Path="C:\Users\adamo\.nuget\packages\mailkit\2.11.0\lib\net50\MailKit.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\adamo\AppData\Local\JetBrains\Rider2020.3\resharper-host\temp\Rider\vAny\CoverageData\_MyPics.2103707504\Snapshot\snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e67df045_002D5123_002D42c9_002Da213_002D5f49f3e59b19/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestAll_ExpectedResult" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3d3f7ff5_002D0595_002D4e25_002Db06b_002Db316f1209d87/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from &amp;lt;Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Project Location="C:\Users\adamo\Documents\GitHub\MyPics" Presentation="&amp;lt;Tests&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=906da336_002D1106_002D472e_002D9eb1_002D23482b51e12d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GenerateTokenExpectedResult" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::AA187832-55A6-49DE-920A-91F04244936D::net5.0::MyPics.Domain.Tests.Email.EmailConfigurationTests.TestAll_ExpectedResult&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::AA187832-55A6-49DE-920A-91F04244936D::net5.0::MyPics.Domain.Tests.Email.EmailMessageTests.TestAll_ExpectedResult&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.Services.EmailServiceTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	</wpf:ResourceDictionary>

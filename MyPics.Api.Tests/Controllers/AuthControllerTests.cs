@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using MyPics.Api.Controllers;
 using MyPics.Domain.DTOs;
+using MyPics.Domain.Email;
 using MyPics.Domain.Models;
 using MyPics.Infrastructure.Interfaces;
 using NUnit.Framework;
@@ -18,6 +20,7 @@ namespace MyPics.Api.Tests.Controllers
         private Mock<IAuthRepository> _repositoryMock;
         private Mock<IConfiguration> _configurationMock;
         private Mock<IMapper> _mapperMock;
+        private Mock<IEmailService> _emailServiceMock;
         private AuthController _controller; 
         
         [SetUp]
@@ -36,8 +39,31 @@ namespace MyPics.Api.Tests.Controllers
 
             _mapperMock.Setup(x => x.Map<User>(It.IsAny<UserForRegisterDto>()))
                 .Returns(new User());
+            
+            _emailServiceMock = new Mock<IEmailService>();
+            _emailServiceMock.Setup(x =>
+                    x.BuildConfirmationMessage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => new EmailMessage());
+            _emailServiceMock.Setup(x => x.SendEmail(It.IsAny<EmailMessage>()))
+                .ReturnsAsync(() => true);
 
-            _controller = new AuthController(_repositoryMock.Object, _configurationMock.Object, _mapperMock.Object);
+            Mock<IUrlHelper> urlHelperMock = new Mock<IUrlHelper>();
+
+            _controller = new AuthController(_repositoryMock.Object, _configurationMock.Object, _mapperMock.Object,
+                _emailServiceMock.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        Request =
+                        {
+                            Scheme = ""
+                        }
+                    }
+                },
+                Url = urlHelperMock.Object
+            };
         }
 
         [Test]
@@ -47,7 +73,11 @@ namespace MyPics.Api.Tests.Controllers
             SetupRepoEmailExists(false);
             SetupRepoUserExists(false);
 
-            var result = await _controller.Register(new UserForRegisterDto());
+            var result = await _controller.Register(new UserForRegisterDto
+            {
+                Username = "testUsername", 
+                Email = "email@test.com"
+            });
 
             result.Should().NotBeNull();
             result.Should().BeOfType<OkResult>();
@@ -60,7 +90,10 @@ namespace MyPics.Api.Tests.Controllers
             SetupRepoEmailExists(false);
             SetupRepoUserExists(false);
 
-            var result = await _controller.Register(new UserForRegisterDto());
+            var result = await _controller.Register(new UserForRegisterDto {
+                Username = "testUsername", 
+                Email = "email@test.com"
+            });
 
             result.Should().NotBeNull();
             result.Should().BeOfType<StatusCodeResult>();
@@ -83,7 +116,7 @@ namespace MyPics.Api.Tests.Controllers
         [Test]
         public async Task Login_Successful_ReturnsOk()
         {
-            SetupRepoLogin(false);
+            SetupRepoLogin(false, true);
 
             var result = await _controller.Login(new UserForLoginDto());
 
@@ -92,9 +125,9 @@ namespace MyPics.Api.Tests.Controllers
         }
         
         [Test]
-        public async Task Login_UnSuccessful_ReturnsUnauthorized()
+        public async Task Login_UnSuccessful_NullUser_ReturnsUnauthorized()
         {
-            SetupRepoLogin(true);
+            SetupRepoLogin(true, false);
 
             var result = await _controller.Login(new UserForLoginDto());
 
@@ -103,11 +136,23 @@ namespace MyPics.Api.Tests.Controllers
         }
         
         [Test]
+        public async Task Login_UnSuccessful_NotConfirmed_ReturnsUnauthorized()
+        {
+            SetupRepoLogin(false, false);
+
+            var result = await _controller.Login(new UserForLoginDto());
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+        }
+        
+        [Test]
         public async Task Login_Exception_ReturnInternalServerError()
         {
-            SetupRepoLogin(false);
+            SetupRepoLogin(false, true);
             _configurationMock = new Mock<IConfiguration>();
-            _controller = new AuthController(_repositoryMock.Object, _configurationMock.Object, _mapperMock.Object);
+            _controller = new AuthController(_repositoryMock.Object, _configurationMock.Object, _mapperMock.Object,
+                _emailServiceMock.Object);
 
             var result = await _controller.Login(new UserForLoginDto());
 
@@ -115,16 +160,49 @@ namespace MyPics.Api.Tests.Controllers
             result.Should().BeOfType<StatusCodeResult>();
         }
 
-        private void SetupRepoLogin(bool shouldReturnNull)
+        [Test]
+        public async Task ConfirmEmail_Successful_ReturnsOk()
+        {
+            SetupRepoConfirmEmail(true);
+            
+            var result = await _controller.ConfirmEmail("testToken", "testUsername");
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<OkObjectResult>();
+        }
+        
+        [Test]
+        public async Task ConfirmEmail_UnSuccessful_ReturnsUnauthorized()
+        {
+            SetupRepoConfirmEmail(false);
+            
+            var result = await _controller.ConfirmEmail("testToken", "testUsername");
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<UnauthorizedObjectResult>();
+        }
+        
+        private void SetupRepoLogin(bool shouldReturnNull, bool shouldBeConfirmed)
         {
             _repositoryMock.Setup(x => x.Login(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(() => shouldReturnNull ? null : new User{ Id = 1, Username = "testUsername" });
+                .ReturnsAsync(() => shouldReturnNull ? null : new User { 
+                    Id = 1, 
+                    Email = "email@test.com",
+                    Username = "testUsername",
+                    RegistrationToken = "testToken",
+                    IsConfirmed = shouldBeConfirmed
+                });
         }
 
         private void SetupRepoRegister(bool shouldReturnNull)
         {
             _repositoryMock.Setup(x => x.Register(It.IsAny<User>(), It.IsAny<string>()))
-                .ReturnsAsync(() => shouldReturnNull ? null : new User());
+                .ReturnsAsync(() => shouldReturnNull ? null : new User { 
+                    Id = 1, 
+                    Username = "testUsername",
+                    Email = "email@test.com",
+                    RegistrationToken = "testToken"
+                });
         }
 
         private void SetupRepoUserExists(bool shouldReturnTrue)
@@ -136,6 +214,12 @@ namespace MyPics.Api.Tests.Controllers
         private void SetupRepoEmailExists(bool shouldReturnTrue)
         {
             _repositoryMock.Setup(x => x.EmailExists(It.IsAny<string>()))
+                .ReturnsAsync(() => shouldReturnTrue);
+        }
+
+        private void SetupRepoConfirmEmail(bool shouldReturnTrue)
+        {
+            _repositoryMock.Setup(x => x.ConfirmEmail(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(() => shouldReturnTrue);
         }
     }
