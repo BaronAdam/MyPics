@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
+using MimeKit.Text;
 using MyPics.Domain.Email;
 using MyPics.Infrastructure.Interfaces;
 
@@ -36,6 +37,8 @@ namespace MyPics.Infrastructure.Services
         public async Task<bool> SendEmail(EmailMessage message)
         {
             var mimeMessage = CreateMimeMessageFromEmailMessage(message);
+
+            if (mimeMessage == null) return false;
             
             try
             {
@@ -67,13 +70,21 @@ namespace MyPics.Infrastructure.Services
         
         private static MimeMessage CreateMimeMessageFromEmailMessage(EmailMessage message)
         {
-            return new ()
+            try
             {
-                From = {message.Sender},
-                To = {message.Receiver},
-                Subject = message.Subject,
-                Body = new TextPart(MimeKit.Text.TextFormat.Html) {Text = message.Content}
-            };
+                return new ()
+                {
+                    From = {message.Sender},
+                    To = {message.Receiver},
+                    Subject = message.Subject,
+                    Body = new TextPart(TextFormat.Html) {Text = message.Content}
+                };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
     }
 }
