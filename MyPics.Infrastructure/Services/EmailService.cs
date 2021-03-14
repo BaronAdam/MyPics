@@ -65,7 +65,7 @@ namespace MyPics.Infrastructure.Services
             };
         }
         
-        private MimeMessage CreateMimeMessageFromEmailMessage(EmailMessage message)
+        private static MimeMessage CreateMimeMessageFromEmailMessage(EmailMessage message)
         {
             return new ()
             {
