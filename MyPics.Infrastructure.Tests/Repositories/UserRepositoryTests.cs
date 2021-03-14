@@ -9,7 +9,7 @@ using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Repositories;
 using NUnit.Framework;
 
-namespace MyPics.Infrastructure.Tests
+namespace MyPics.Infrastructure.Tests.Repositories
 {
     [TestFixture]
     public class UserRepositoryTests

@@ -29,6 +29,7 @@ namespace MyPics.Infrastructure.Persistence.DatabaseSeed
 
                     user.PasswordHash = passwordHash;
                     user.PasswordSalt = passwordSalt;
+                    user.IsConfirmed = true;
                     _context.Users.Add(user);
                 }
 

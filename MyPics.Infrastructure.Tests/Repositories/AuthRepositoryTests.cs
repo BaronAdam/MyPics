@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -9,9 +11,8 @@ using MyPics.Domain.Models;
 using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Repositories;
 using NUnit.Framework;
-using FluentAssertions;
 
-namespace MyPics.Infrastructure.Tests
+namespace MyPics.Infrastructure.Tests.Repositories
 {
     [TestFixture]
     public class AuthRepositoryTests
@@ -41,7 +42,9 @@ namespace MyPics.Infrastructure.Tests
                 Username = "testUsername100",
                 Email = "test1@email.com",
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
+                PasswordSalt = passwordSalt,
+                RegistrationToken = "testToken1",
+                RegistrationTokenGeneratedTime = DateTime.UtcNow
             });
             CreatePasswordHash("testPassword2", out passwordHash, out passwordSalt);
             _context.Users.Add(new User
@@ -49,7 +52,9 @@ namespace MyPics.Infrastructure.Tests
                 Username = "testUsername200",
                 Email = "test2@email.com",
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
+                PasswordSalt = passwordSalt,
+                RegistrationToken = "testToken2",
+                RegistrationTokenGeneratedTime = DateTime.UtcNow
             });
             CreatePasswordHash("testPassword3", out passwordHash, out passwordSalt);
             _context.Users.Add(new User
@@ -57,7 +62,9 @@ namespace MyPics.Infrastructure.Tests
                 Email = "test2@email.com",
                 Username = "testUsername300",
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
+                PasswordSalt = passwordSalt,
+                RegistrationToken = "testToken3",
+                RegistrationTokenGeneratedTime = DateTime.UtcNow.AddHours(-3).AddSeconds(-1)
             });
             _context.SaveChanges();
 
@@ -216,6 +223,51 @@ namespace MyPics.Infrastructure.Tests
             var result = await _repository.EmailExists("test1@email.com");
 
             result.Should().BeTrue();
+        }
+
+        [TestCase("testToken1", "testUsername100")]
+        [TestCase("testToken2", "testUsername200")]
+        public async Task ConfirmEmail_Successful_ReturnsTrue(string token, string username)
+        {
+            var result = await _repository.ConfirmEmail(token, username);
+
+            result.Should().BeTrue();
+        }
+        
+        [TestCase("testToken1", "testUsername50")]
+        [TestCase("testToken2", "testUsername60")]
+        public async Task ConfirmEmail_UnSuccessful_NullUser_ReturnsFalse(string token, string username)
+        {
+            var result = await _repository.ConfirmEmail(token, username);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task ConfirmEmail_UnSuccessful_Expired_ReturnsFalse()
+        {
+            var result = await _repository.ConfirmEmail("testToken3", "testUsername300");
+
+            result.Should().BeFalse();
+        }
+        
+        [TestCase("notExistingToken1", "testUsername50")]
+        [TestCase("notExistingToken2", "testUsername60")]
+        public async Task ConfirmEmail_UnSuccessful_WrongToken_ReturnsFalse(string token, string username)
+        {
+            var result = await _repository.ConfirmEmail(token, username);
+
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task ConfirmEmail_Exception_ReturnsFalse()
+        {
+            _repository = new AuthRepository(null);
+            
+            var result = await _repository.ConfirmEmail("testToken1", "testUsername100");
+
+            result.Should().BeFalse();
         }
         
         private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)

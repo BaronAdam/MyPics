@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MyPics.Domain.Models;
+using MyPics.Infrastructure.Helpers;
 using MyPics.Infrastructure.Interfaces;
 using MyPics.Infrastructure.Persistence;
 
@@ -13,6 +14,7 @@ namespace MyPics.Infrastructure.Repositories
     public class AuthRepository : IAuthRepository
     {
         private readonly MyPicsDbContext _context;
+        private const int ExpirationTimeInHours = 3;
 
         public AuthRepository(MyPicsDbContext context)
         {
@@ -27,7 +29,8 @@ namespace MyPics.Infrastructure.Repositories
 
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
-
+            GenerateRegistrationToken(ref user);
+            
             try
             {
                 await _context.Users.AddAsync(user);
@@ -58,6 +61,13 @@ namespace MyPics.Infrastructure.Repositories
 
             if (user == null) return null;
 
+            if (!user.IsConfirmed)
+            {
+                GenerateRegistrationToken(ref user);
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+
             return VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt) ? user : null;
         }
 
@@ -86,7 +96,45 @@ namespace MyPics.Infrastructure.Repositories
                 return true;
             }
         }
-        
+
+        public async Task<bool> ConfirmEmail(string token, string username)
+        {
+            User user;
+            try
+            {
+                user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+
+            if (user == null) return false;
+
+            var interval = DateTime.UtcNow - user.RegistrationTokenGeneratedTime;
+            
+            if (interval.Hours >= 3) return false;
+
+            if (user.RegistrationToken != token) return false;
+
+            user.RegistrationToken = null;
+            user.IsConfirmed = true;
+
+            try
+            {
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+
+            return true;
+        }
+
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using var hmac = new HMACSHA512();
@@ -99,6 +147,12 @@ namespace MyPics.Infrastructure.Repositories
             using var hmac = new HMACSHA512(passwordSalt);
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             return !computedHash.Where((t, i) => t != passwordHash[i]).Any();
+        }
+
+        private static void GenerateRegistrationToken(ref User user)
+        {
+            user.RegistrationToken = TokenGenerator.GenerateToken();
+            user.RegistrationTokenGeneratedTime = DateTime.UtcNow;
         }
     }
 }
