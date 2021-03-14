@@ -11,14 +11,14 @@ namespace MyPics.Infrastructure.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly SmtpClient _client;
+        private readonly ISmtpClient _client;
         private readonly EmailConfiguration _configuration;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IConfiguration configuration, ISmtpClient client)
         { 
             _configuration = (EmailConfiguration) configuration.GetSection("EmailConfirmation");
             
-            _client = new SmtpClient();
+            _client = client;
             try
             {
                 _client.Connect(_configuration.SmtpServer, _configuration.Port, true);
@@ -54,7 +54,7 @@ namespace MyPics.Infrastructure.Services
 
         public EmailMessage BuildConfirmationMessage(string receiver, string username, string confirmationUrl)
         {
-            var messageBody = "Please confirm your account by clicking this <a href=\"" 
+            var messageBody = "Please confirm your account by clicking this link: <a href=\"" 
                               + confirmationUrl + "\">link</a><br/>";
             messageBody += HttpUtility.HtmlEncode(@"Or click on the copy the following link on the browser: " 
                                                   + confirmationUrl);
