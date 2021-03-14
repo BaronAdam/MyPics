@@ -31,7 +31,14 @@ namespace MyPics.Infrastructure.Services
 
         ~EmailService()
         {
-            _client.Disconnect(true);
+            try
+            {
+                _client.Disconnect(true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
         
         public async Task<bool> SendEmail(EmailMessage message)
