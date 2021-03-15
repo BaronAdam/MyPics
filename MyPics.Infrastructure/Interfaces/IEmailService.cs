@@ -6,6 +6,5 @@ namespace MyPics.Infrastructure.Interfaces
     public interface IEmailService
     {
         public Task<bool> SendEmail(EmailMessage message);
-        public EmailMessage BuildConfirmationMessage(string receiver, string username, string confirmationUrl);
     }
 }
