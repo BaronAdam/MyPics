@@ -67,17 +67,5 @@ namespace MyPics.Infrastructure.Tests.Services
 
             result.Should().BeFalse();
         }
-
-        [TestCase("test1@email.com", "testUsername1", "test1.url.com")]
-        [TestCase("test2@email.com", "testUsername2", "test2.url.com")]
-        public void BuildConfirmationMessage_Successful_ReturnsExpected(string receiver, string username, string confirmationUrl)
-        {
-            var result = _service.BuildConfirmationMessage(receiver, username, confirmationUrl);
-
-            result.Should().NotBeNull();
-            result.Content.Should().Contain(confirmationUrl);
-            result.Receiver.Should().BeEquivalentTo(new MailboxAddress(username, receiver));
-            result.Sender.Should().BeEquivalentTo(new MailboxAddress("testSender", "email@test.com"));
-        }
     }
 }

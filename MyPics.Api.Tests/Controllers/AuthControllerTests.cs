@@ -41,9 +41,6 @@ namespace MyPics.Api.Tests.Controllers
                 .Returns(new User());
             
             _emailServiceMock = new Mock<IEmailService>();
-            _emailServiceMock.Setup(x =>
-                    x.BuildConfirmationMessage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(() => new EmailMessage());
             _emailServiceMock.Setup(x => x.SendEmail(It.IsAny<EmailMessage>()))
                 .ReturnsAsync(() => true);
 
