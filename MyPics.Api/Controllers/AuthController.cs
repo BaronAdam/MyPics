@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MyPics.Domain.DTOs;
+using MyPics.Domain.Email.Builders;
 using MyPics.Domain.Models;
 using MyPics.Infrastructure.Interfaces;
 
@@ -128,7 +129,7 @@ namespace MyPics.Api.Controllers
                 new {Token = user.RegistrationToken, Username = user.Username},
                 ControllerContext.HttpContext.Request.Scheme);
 
-            var message = _emailService.BuildConfirmationMessage(user.Email, user.Username, emailActionLink);
+            var message = ConfirmationEmailBuilder.BuildConfirmationMessage(user.Email, user.Username, emailActionLink);
             
             return await _emailService.SendEmail(message);
         }

@@ -43,6 +43,8 @@ namespace MyPics.Infrastructure.Services
         
         public async Task<bool> SendEmail(EmailMessage message)
         {
+            message.Sender = new MailboxAddress(_configuration.SenderName, _configuration.Sender);
+            
             var mimeMessage = CreateMimeMessageFromEmailMessage(message);
 
             if (mimeMessage == null) return false;
@@ -60,21 +62,6 @@ namespace MyPics.Infrastructure.Services
             return true;
         }
 
-        public EmailMessage BuildConfirmationMessage(string receiver, string username, string confirmationUrl)
-        {
-            var messageBody = "Please confirm your account by clicking this <a href=\"" 
-                              + confirmationUrl + "\">link</a>. Please note the link is valid for 3 hours.<br/>";
-            messageBody += "Or copy the following link and paste it in address bar in your browser: <br/>" + confirmationUrl;
-            
-            return new EmailMessage
-            {
-                Sender = new MailboxAddress(_configuration.SenderName, _configuration.Sender),
-                Receiver = new MailboxAddress(username, receiver),
-                Subject = "My Pics e-mail confirmation",
-                Content = messageBody
-            };
-        }
-        
         private static MimeMessage CreateMimeMessageFromEmailMessage(EmailMessage message)
         {
             try
