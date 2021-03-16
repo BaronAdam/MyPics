@@ -9,6 +9,8 @@ namespace MyPics.Api.Helpers
         public AutoMapperProfiles()
         {
             CreateMap<UserForRegisterDto, User>();
+            CreateMap<User, UserForSearchDto>();
+            CreateMap<User, UserForFollowDto>();
         }
     }
 }
