@@ -71,5 +71,27 @@ namespace MyPics.Infrastructure.Repositories
 
             return await PagedList<UserForFollowDto>.CreateAsync(follows, parameters.PageNumber, parameters.PageSize);
         }
+
+        public async Task<UserForFollowDto> FindUserInFollows(int userId, string username)
+        {
+            var user = await _context.Follows.Where(x => x.UserId == userId)
+                .Select(x => x.Following)
+                .ProjectTo<UserForFollowDto>(_mapper.ConfigurationProvider)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Username == username);
+            
+            return user;
+        }
+
+        public async Task<UserForFollowDto> FindUserInFollowers(int userId, string username)
+        {
+            var user = await _context.Follows.Where(x => x.FollowingId == userId)
+                .Select(x => x.User)
+                .ProjectTo<UserForFollowDto>(_mapper.ConfigurationProvider)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Username == username);
+            
+            return user;
+        }
     }
 }

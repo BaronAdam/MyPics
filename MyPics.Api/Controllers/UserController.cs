@@ -72,5 +72,35 @@ namespace MyPics.Api.Controllers
 
             return Ok(users);
         }
+
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        [HttpGet("follows/{username}")]
+        public async Task<IActionResult> FindUserInFollows(string username)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+
+            var user = await _userRepository.FindUserInFollows(userId, username);
+
+            if (user == null) return BadRequest("Could not find a specified user");
+
+            return Ok(user);
+        }
+        
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        [HttpGet("followers/{username}")]
+        public async Task<IActionResult> FindUserInFollowers(string username)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+
+            var user = await _userRepository.FindUserInFollowers(userId, username);
+
+            if (user == null) return BadRequest("Could not find a specified user");
+
+            return Ok(user);
+        }
     }
 }
