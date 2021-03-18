@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -25,9 +26,9 @@ namespace MyPics.Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("find")]
+        [HttpGet("find/{username}")]
         [AllowAnonymous]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(UserForSearchDto), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> FindUserByUsername(string username)
@@ -43,7 +44,7 @@ namespace MyPics.Api.Controllers
             return Ok(mappedUser);
         }
 
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PagedList<UserForFollowDto>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         [HttpGet("follows")]
@@ -53,12 +54,12 @@ namespace MyPics.Api.Controllers
 
             var users = await _userRepository.GetUserFollows(userId, parameters);
 
-            if (users == null) return BadRequest("Could not find any follows");
+            if (!users.Any() || users == null) return BadRequest("Could not find any follows");
 
             return Ok(users);
         }
         
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PagedList<UserForFollowDto>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         [HttpGet("followers")]
@@ -68,12 +69,12 @@ namespace MyPics.Api.Controllers
 
             var users = await _userRepository.GetUserFollowers(userId, parameters);
 
-            if (users == null) return BadRequest("Could not find any followers");
+            if (!users.Any() || users == null) return BadRequest("Could not find any followers");
 
             return Ok(users);
         }
 
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(UserForFollowDto), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         [HttpGet("follows/{username}")]
@@ -88,7 +89,7 @@ namespace MyPics.Api.Controllers
             return Ok(user);
         }
         
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(UserForFollowDto), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         [HttpGet("followers/{username}")]
