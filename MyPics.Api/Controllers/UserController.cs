@@ -54,7 +54,7 @@ namespace MyPics.Api.Controllers
 
             var users = await _userRepository.GetUserFollows(userId, parameters);
 
-            if (!users.Any() || users == null) return BadRequest("Could not find any follows");
+            if (users == null || !users.Any()) return BadRequest("Could not find any follows");
 
             return Ok(users);
         }
@@ -69,7 +69,7 @@ namespace MyPics.Api.Controllers
 
             var users = await _userRepository.GetUserFollowers(userId, parameters);
 
-            if (!users.Any() || users == null) return BadRequest("Could not find any followers");
+            if (users == null || !users.Any()) return BadRequest("Could not find any followers");
 
             return Ok(users);
         }
