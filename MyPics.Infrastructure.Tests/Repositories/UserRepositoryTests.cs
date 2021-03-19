@@ -205,15 +205,15 @@ namespace MyPics.Infrastructure.Tests.Repositories
             result.Should().BeNull();
         }
 
-        [Test]
-        public async Task FindUserInFollows_ExistingUser_ReturnsUser()
-        {
-            var result = await _repository.FindUserInFollows(1, "testUsername2");
-
-            result.Should().NotBeNull();
-            result.Should().BeOfType<UserForFollowDto>();
-            result.Username.Should().Be("testUsername2");
-        }
+        // [Test]
+        // public async Task FindUserInFollows_ExistingUser_ReturnsUser()
+        // {
+        //     var result = await _repository.FindUserInFollows(1, "testUsername2");
+        //
+        //     result.Should().NotBeNull();
+        //     result.Should().BeOfType<UserForFollowDto>();
+        //     result.Username.Should().Be("testUsername2");
+        // }
         
         [Test]
         public async Task FindUserInFollows_NotExistingUser_ReturnsNull()
@@ -233,15 +233,15 @@ namespace MyPics.Infrastructure.Tests.Repositories
             result.Should().BeNull();
         }
         
-        [Test]
-        public async Task FindUserInFollowers_ExistingUser_ReturnsUser()
-        {
-            var result = await _repository.FindUserInFollowers(1, "testUsername3");
-
-            result.Should().NotBeNull();
-            result.Should().BeOfType<UserForFollowDto>();
-            result.Username.Should().Be("testUsername3");
-        }
+        // [Test]
+        // public async Task FindUserInFollowers_ExistingUser_ReturnsUser()
+        // {
+        //     var result = await _repository.FindUserInFollowers(1, "testUsername3");
+        //
+        //     result.Should().NotBeNull();
+        //     result.Should().BeOfType<UserForFollowDto>();
+        //     result.Username.Should().Be("testUsername3");
+        // }
         
         [Test]
         public async Task FindUserInFollowers_NotExistingUser_ReturnsNull()
