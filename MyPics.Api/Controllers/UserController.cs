@@ -19,11 +19,13 @@ namespace MyPics.Api.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IFollowRepository _followRepository;
 
-        public UserController(IUserRepository userRepository, IMapper mapper)
+        public UserController(IUserRepository userRepository, IMapper mapper, IFollowRepository followRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _followRepository = followRepository;
         }
 
         [HttpGet("find/{username}")]
@@ -52,7 +54,7 @@ namespace MyPics.Api.Controllers
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
 
-            var users = await _userRepository.GetUserFollows(userId, parameters);
+            var users = await _followRepository.GetUserFollows(userId, parameters);
 
             if (users == null || !users.Any()) return BadRequest("Could not find any follows");
 
@@ -67,7 +69,7 @@ namespace MyPics.Api.Controllers
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
 
-            var users = await _userRepository.GetUserFollowers(userId, parameters);
+            var users = await _followRepository.GetUserFollowers(userId, parameters);
 
             if (users == null || !users.Any()) return BadRequest("Could not find any followers");
 
@@ -82,7 +84,7 @@ namespace MyPics.Api.Controllers
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
 
-            var user = await _userRepository.FindUserInFollows(userId, username);
+            var user = await _followRepository.FindUserInFollows(userId, username);
 
             if (user == null) return BadRequest("Could not find a specified user");
 
@@ -97,7 +99,7 @@ namespace MyPics.Api.Controllers
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
 
-            var user = await _userRepository.FindUserInFollowers(userId, username);
+            var user = await _followRepository.FindUserInFollowers(userId, username);
 
             if (user == null) return BadRequest("Could not find a specified user");
 

@@ -19,7 +19,8 @@ namespace MyPics.Api.Tests.Controllers
     [TestFixture]
     public class UserControllerTests
     {
-        private Mock<IUserRepository> _repository;
+        private Mock<IUserRepository> _userRepository;
+        private Mock<IFollowRepository> _followRepository;
         private Mock<IMapper> _mapper;
         private UserController _controller;
         
@@ -32,13 +33,15 @@ namespace MyPics.Api.Tests.Controllers
                 .Returns(() => new MapperConfiguration(
                         cfg => { cfg.CreateMap<User, UserForSearchDto>(); }));
 
-            _repository = new Mock<IUserRepository>();
+            _userRepository = new Mock<IUserRepository>();
+
+            _followRepository = new Mock<IFollowRepository>();
             
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
                 new Claim(ClaimTypes.NameIdentifier, "123"),
             },"TestAuthentication"));
 
-            _controller = new UserController(_repository.Object, _mapper.Object)
+            _controller = new UserController(_userRepository.Object, _mapper.Object, _followRepository.Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -183,7 +186,7 @@ namespace MyPics.Api.Tests.Controllers
         
         private void SetupRepoGetUserByUsername(bool shouldReturnNull)
         {
-            _repository.Setup(x => x.GetUserByUsername(It.IsAny<string>()))
+            _userRepository.Setup(x => x.GetUserByUsername(It.IsAny<string>()))
                 .ReturnsAsync(() => shouldReturnNull ? null : new User());
         }
         
@@ -191,7 +194,7 @@ namespace MyPics.Api.Tests.Controllers
         {
             if (shouldReturnEmpty)
             {
-                _repository.Setup(x => x.GetUserFollows(It.IsAny<int>(), It.IsAny<UserParameters>()))
+                _followRepository.Setup(x => x.GetUserFollows(It.IsAny<int>(), It.IsAny<UserParameters>()))
                     .ReturnsAsync(() => new PagedList<UserForFollowDto>(new List<UserForFollowDto>(), 0, 0, 0));
                 return;
             }
@@ -203,7 +206,7 @@ namespace MyPics.Api.Tests.Controllers
                 list.Add(new UserForFollowDto{ Username = "test"});
             }
 
-            _repository.Setup(x => x.GetUserFollows(It.IsAny<int>(), It.IsAny<UserParameters>()))
+            _followRepository.Setup(x => x.GetUserFollows(It.IsAny<int>(), It.IsAny<UserParameters>()))
                 .ReturnsAsync(() => shouldReturnNull ? null : new PagedList<UserForFollowDto>(list, 1, 10, 10));
         }
         
@@ -211,7 +214,7 @@ namespace MyPics.Api.Tests.Controllers
         {
             if (shouldReturnEmpty)
             {
-                _repository.Setup(x => x.GetUserFollowers(It.IsAny<int>(), It.IsAny<UserParameters>()))
+                _followRepository.Setup(x => x.GetUserFollowers(It.IsAny<int>(), It.IsAny<UserParameters>()))
                     .ReturnsAsync(() => new PagedList<UserForFollowDto>(new List<UserForFollowDto>(), 0, 0, 0));
                 return;
             }
@@ -223,19 +226,19 @@ namespace MyPics.Api.Tests.Controllers
                 list.Add(new UserForFollowDto{ Username = "test"});
             }
 
-            _repository.Setup(x => x.GetUserFollowers(It.IsAny<int>(), It.IsAny<UserParameters>()))
+            _followRepository.Setup(x => x.GetUserFollowers(It.IsAny<int>(), It.IsAny<UserParameters>()))
                 .ReturnsAsync(() => shouldReturnNull ? null : new PagedList<UserForFollowDto>(list, 1, 10, 10));
         }
         
         private void SetupRepoFindUserInFollows(bool shouldReturnNull)
         {
-            _repository.Setup(x => x.FindUserInFollows(It.IsAny<int>(), It.IsAny<string>()))
+            _followRepository.Setup(x => x.FindUserInFollows(It.IsAny<int>(), It.IsAny<string>()))
                 .ReturnsAsync(() => shouldReturnNull ? null : new UserForFollowDto());
         }
         
         private void SetupRepoFindUserInFollowers(bool shouldReturnNull)
         {
-            _repository.Setup(x => x.FindUserInFollowers(It.IsAny<int>(), It.IsAny<string>()))
+            _followRepository.Setup(x => x.FindUserInFollowers(It.IsAny<int>(), It.IsAny<string>()))
                 .ReturnsAsync(() => shouldReturnNull ? null : new UserForFollowDto());
         }
     }
