@@ -47,11 +47,16 @@ namespace MyPics.Infrastructure.Repositories
         {
             try
             {
-                var follows = _context.Follows.Where(x => x.FollowingId == userId)
-                    .Select(x => x.User)
-                    .OrderBy(x => x.Id)
-                    .ProjectTo<UserForFollowDto>(_mapper.ConfigurationProvider)
-                    .AsNoTracking();
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+                var queryable = user.IsPrivate
+                    ? _context.Follows.Where(x => x.FollowingId == userId && x.IsAccepted)
+                    : _context.Follows.Where(x => x.FollowingId == userId);
+                    
+                var follows = queryable.Select(x => x.User)
+                .OrderBy(x => x.Id)
+                .ProjectTo<UserForFollowDto>(_mapper.ConfigurationProvider)
+                .AsNoTracking();
 
                 return await PagedList<UserForFollowDto>.CreateAsync(follows, parameters.PageNumber, parameters.PageSize);
             }
@@ -204,8 +209,8 @@ namespace MyPics.Infrastructure.Repositories
         {
             try
             {
-                var users = _context.Follows.Where(x => x.UserId == userId && x.IsAccepted == false)
-                    .Select(x => x.Following)
+                var users = _context.Follows.Where(x => x.FollowingId == userId && x.IsAccepted == false)
+                    .Select(x => x.User)
                     .OrderBy(x => x.Id)
                     .ProjectTo<UserForFollowDto>(_mapper.ConfigurationProvider)
                     .AsNoTracking();
