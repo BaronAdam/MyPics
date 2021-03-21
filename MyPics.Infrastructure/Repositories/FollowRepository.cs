@@ -209,6 +209,10 @@ namespace MyPics.Infrastructure.Repositories
         {
             try
             {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+                if (!user.IsPrivate) return null;
+                
                 var users = _context.Follows.Where(x => x.FollowingId == userId && x.IsAccepted == false)
                     .Select(x => x.User)
                     .OrderBy(x => x.Id)
