@@ -108,11 +108,10 @@ namespace MyPics.Infrastructure.Repositories
                 FollowingId = followeeId,
                 IsAccepted = false
             };
-
-            await _context.Follows.AddAsync(follow);
             
             try
             {
+                _context.Follows.Add(follow);
                 return await _context.SaveChangesAsync() > 0;
             }
             catch (Exception e)
@@ -124,8 +123,7 @@ namespace MyPics.Infrastructure.Repositories
 
         public async Task<FollowStatusDto> GetFollowStatus(int userId, int followeeId)
         {
-            var follow = await _context.Follows
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.FollowingId == followeeId);
+            var follow = await GetFollow(userId, followeeId);
 
             if (follow == null) return new FollowStatusDto();
 
@@ -134,16 +132,11 @@ namespace MyPics.Infrastructure.Repositories
 
         public async Task<bool> UnFollowUser(int userId, int followeeId)
         {
-            var follow = new Follow
-            {
-                UserId = userId, 
-                FollowingId = followeeId
-            };
-
-            _context.Follows.Remove(follow);
+            var follow = await GetFollow(userId, followeeId);
 
             try
             {
+                _context.Follows.Remove(follow);
                 return await _context.SaveChangesAsync() > 0;
             }
             catch (Exception e)
@@ -155,23 +148,13 @@ namespace MyPics.Infrastructure.Repositories
 
         public async Task<bool> AcceptFollow(int userId, int followeeId)
         {
-            var status = await GetFollowStatus(userId, followeeId);
+            var follow = await GetFollow(userId, followeeId);
 
-            if (status.IsAlreadyInFollows && status.IsFollowAccepted) return false;
-
-            if (!status.IsAlreadyInFollows) return false;
-
-            var follow = new Follow
-            {
-                UserId = userId,
-                FollowingId = followeeId,
-                IsAccepted = true
-            };
-
-            _context.Follows.Update(follow);
-
+            if (follow == null || follow.IsAccepted) return false;
+            
             try
             {
+                _context.Follows.Update(follow);
                 return await _context.SaveChangesAsync() > 0;
             }
             catch (Exception e)
@@ -183,13 +166,35 @@ namespace MyPics.Infrastructure.Repositories
 
         public async Task<PagedList<UserForFollowDto>> GetNotAcceptedFollows(UserParameters parameters, int userId)
         {
-            var result = _context.Follows.Where(x => x.UserId == userId && x.IsAccepted == false)
-                .Select(x => x.Following)
-                .OrderBy(x => x.Id)
-                .ProjectTo<UserForFollowDto>(_mapper.ConfigurationProvider)
-                .AsNoTracking();
+            try
+            {
+                var users = _context.Follows.Where(x => x.UserId == userId && x.IsAccepted == false)
+                    .Select(x => x.Following)
+                    .OrderBy(x => x.Id)
+                    .ProjectTo<UserForFollowDto>(_mapper.ConfigurationProvider)
+                    .AsNoTracking();
 
-            return await PagedList<UserForFollowDto>.CreateAsync(result, parameters.PageNumber, parameters.PageSize);
+                return await PagedList<UserForFollowDto>.CreateAsync(users, parameters.PageNumber, parameters.PageSize);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
+
+        private async Task<Follow> GetFollow(int userId, int followeeId)
+        {
+            try
+            {
+                return await _context.Follows
+                    .FirstOrDefaultAsync(x => x.UserId == userId && x.FollowingId == followeeId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
     }
 }
