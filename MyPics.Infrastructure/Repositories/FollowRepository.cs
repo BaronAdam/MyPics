@@ -157,6 +157,8 @@ namespace MyPics.Infrastructure.Repositories
             var follow = await GetFollow(followerId, userId);
 
             if (follow == null || follow.IsAccepted) return false;
+
+            follow.IsAccepted = true;
             
             try
             {
