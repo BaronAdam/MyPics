@@ -20,7 +20,6 @@ namespace MyPics.Infrastructure.Tests.Repositories
     {
         private MyPicsDbContext _context;
         private FollowRepository _repository;
-        private Mock<IMapper> _mapper;
 
         [SetUp]
         public void Setup()
@@ -35,15 +34,14 @@ namespace MyPics.Infrastructure.Tests.Repositories
             var options = new DbContextOptionsBuilder<MyPicsDbContext>()
                 .UseInMemoryDatabase("my_pics")
                 .Options;
-
-            _mapper = new Mock<IMapper>();
             
-            _mapper.Setup(x => x.ConfigurationProvider)
+            var mapper = new Mock<IMapper>();
+            
+            mapper.Setup(x => x.ConfigurationProvider)
                 .Returns(
                     () => new MapperConfiguration(
                         cfg => { cfg.CreateMap<User, UserForFollowDto>(); }));
-
-
+            
             _context = new MyPicsDbContext(options, configuration.Object);
 
             _context.Users.Add(new User
@@ -64,19 +62,44 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 Username = "testUsername3",
                 Email = "test3@email.com",
             });
+            _context.Users.Add(new User
+            {
+                Id = 4,
+                Username = "testUsername4",
+                Email = "test4@email.com",
+            });
+            _context.Users.Add(new User
+            {
+                Id = 5,
+                Username = "testUsername5",
+                Email = "test5@email.com",
+            });
+            _context.Users.Add(new User
+            {
+                Id = 6,
+                Username = "testUsername5",
+                Email = "test5@email.com",
+            });
 
             _context.Follows.Add(new Follow
             {
                 UserId = 1,
-                FollowingId = 2
+                FollowingId = 2,
+                IsAccepted = true
             });
-
+            _context.Follows.Add(new Follow
+            {
+                UserId = 1,
+                FollowingId = 3,
+                IsAccepted = false
+            });
             _context.Follows.Add(new Follow
             {
                 UserId = 3,
-                FollowingId = 1
+                FollowingId = 1,
+                IsAccepted = false
             });
-            
+
             try
             {
                 _context.SaveChanges();
@@ -86,7 +109,13 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 Console.WriteLine(e);
             }
 
-            _repository = new FollowRepository(_context, _mapper.Object);
+            _repository = new FollowRepository(_context, mapper.Object);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            _context.Database.EnsureDeleted();
         }
         
         [Test]
@@ -128,7 +157,7 @@ namespace MyPics.Infrastructure.Tests.Repositories
         [Test]
         public async Task GetUserFollowers_NotExistingFollowers_ReturnsEmpty()
         {
-            var result = await _repository.GetUserFollowers(3, new UserParameters());
+            var result = await _repository.GetUserFollowers(5, new UserParameters());
 
             result.Should().BeEmpty();
         }
@@ -143,15 +172,15 @@ namespace MyPics.Infrastructure.Tests.Repositories
             result.Should().BeNull();
         }
 
-        // [Test]
-        // public async Task FindUserInFollows_ExistingUser_ReturnsUser()
-        // {
-        //     var result = await _repository.FindUserInFollows(1, "testUsername2");
-        //
-        //     result.Should().NotBeNull();
-        //     result.Should().BeOfType<UserForFollowDto>();
-        //     result.Username.Should().Be("testUsername2");
-        // }
+        [Test]
+        public async Task FindUserInFollows_ExistingUser_ReturnsUser()
+        {
+            var result = await _repository.FindUserInFollows(1, "testUsername2");
+        
+            result.Should().NotBeNull();
+            result.Should().BeOfType<UserForFollowDto>();
+            result.Username.Should().Be("testUsername2");
+        }
         
         [Test]
         public async Task FindUserInFollows_NotExistingUser_ReturnsNull()
@@ -171,15 +200,15 @@ namespace MyPics.Infrastructure.Tests.Repositories
             result.Should().BeNull();
         }
         
-        // [Test]
-        // public async Task FindUserInFollowers_ExistingUser_ReturnsUser()
-        // {
-        //     var result = await _repository.FindUserInFollowers(1, "testUsername3");
-        //
-        //     result.Should().NotBeNull();
-        //     result.Should().BeOfType<UserForFollowDto>();
-        //     result.Username.Should().Be("testUsername3");
-        // }
+        [Test]
+        public async Task FindUserInFollowers_ExistingUser_ReturnsUser()
+        {
+            var result = await _repository.FindUserInFollowers(1, "testUsername3");
+        
+            result.Should().NotBeNull();
+            result.Should().BeOfType<UserForFollowDto>();
+            result.Username.Should().Be("testUsername3");
+        }
         
         [Test]
         public async Task FindUserInFollowers_NotExistingUser_ReturnsNull()
@@ -195,6 +224,168 @@ namespace MyPics.Infrastructure.Tests.Repositories
             _repository = new FollowRepository(null, null);
             
             var result = await _repository.FindUserInFollowers(1, "testUsername3");
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task FollowUser_Successful_ReturnsTrue()
+        {
+            var result = await _repository.FollowUser(5, 6);
+        
+            result.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task FollowUser_UnSuccessfulExisting_ReturnsFalse()
+        {
+            var result = await _repository.FollowUser(1, 2);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task FollowUser_Exception_ReturnsFalse()
+        {
+            _repository = new FollowRepository(null, null);
+            
+            var result = await _repository.FollowUser(1, 2);
+
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task GetFollowStatus_ExistingAccepted_ReturnsExpected()
+        {
+            var result = await _repository.GetFollowStatus(1, 2);
+
+            result.Should().BeOfType<FollowStatusDto>();
+            result.IsFollowAccepted.Should().BeTrue();
+            result.IsAlreadyInFollows.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task GetFollowStatus_ExistingNotAccepted_ReturnsExpected()
+        {
+            var result = await _repository.GetFollowStatus(1, 3);
+
+            result.Should().BeOfType<FollowStatusDto>();
+            result.IsFollowAccepted.Should().BeFalse();
+            result.IsAlreadyInFollows.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task GetFollowStatus_NotExisting_ReturnsExpected()
+        {
+            var result = await _repository.GetFollowStatus(1, 100);
+
+            result.Should().BeOfType<FollowStatusDto>();
+            result.IsFollowAccepted.Should().BeFalse();
+            result.IsAlreadyInFollows.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task GetFollowStatus_Exception_ReturnsExpected()
+        {
+            _repository = new FollowRepository(null, null);
+            
+            var result = await _repository.GetFollowStatus(1, 2);
+
+            result.Should().BeOfType<FollowStatusDto>();
+            result.IsFollowAccepted.Should().BeFalse();
+            result.IsAlreadyInFollows.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task UnFollowUser_ExistingFollow_ReturnsTrue()
+        {
+            var result = await _repository.UnFollowUser(1, 3);
+
+            result.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task UnFollowUser_NotExistingFollow_ReturnsFalse()
+        {
+            var result = await _repository.UnFollowUser(1, 100);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task UnFollowUser_Exception_ReturnsFalse()
+        {
+            _repository = new FollowRepository(null, null);
+            
+            var result = await _repository.UnFollowUser(1, 3);
+
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task AcceptFollow_ExistingFollow_ReturnsTrue()
+        {
+            var result = await _repository.AcceptFollow(1, 3);
+
+            result.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task AcceptFollow_NotExistingFollow_ReturnsFalse()
+        {
+            var result = await _repository.AcceptFollow(1, 100);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task AcceptFollow_ExistingFollowAlreadyAccepted_ReturnsFalse()
+        {
+            var result = await _repository.AcceptFollow(1, 2);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task AcceptFollow_Exception_ReturnsFalse()
+        {
+            _repository = new FollowRepository(null, null);
+            
+            var result = await _repository.AcceptFollow(1, 3);
+
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task GetNotAcceptedFollows_ExistingFollows_ReturnsExpected()
+        {
+            var parameters = new UserParameters();
+
+            var result = await _repository.GetNotAcceptedFollows(parameters, 1);
+
+            result.Should().BeOfType<PagedList<UserForFollowDto>>();
+            result[0].Id.Should().Be(3);
+        }
+        
+        [Test]
+        public async Task GetNotAcceptedFollows_NotExistingFollows_ReturnsExpected()
+        {
+            var parameters = new UserParameters();
+
+            var result = await _repository.GetNotAcceptedFollows(parameters, 10);
+
+            result.Should().BeOfType<PagedList<UserForFollowDto>>();
+            result.Should().BeEmpty();
+        }
+        
+        [Test]
+        public async Task GetNotAcceptedFollows_Exception_ReturnsNull()
+        {
+            _repository = new FollowRepository(null, null);
+            
+            var parameters = new UserParameters();
+
+            var result = await _repository.GetNotAcceptedFollows(parameters, 10);
 
             result.Should().BeNull();
         }
