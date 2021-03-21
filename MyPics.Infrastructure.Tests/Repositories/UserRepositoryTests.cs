@@ -7,8 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
-using MyPics.Infrastructure.Helpers;
-using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Repositories;
 using NUnit.Framework;
@@ -65,18 +63,6 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 Email = "test3@email.com",
             });
 
-            _context.Follows.Add(new Follow
-            {
-                UserId = 1,
-                FollowingId = 2
-            });
-
-            _context.Follows.Add(new Follow
-            {
-                UserId = 3,
-                FollowingId = 1
-            });
-            
             try
             {
                 _context.SaveChanges();
@@ -87,6 +73,12 @@ namespace MyPics.Infrastructure.Tests.Repositories
             }
 
             _repository = new UserRepository(_context, _mapper.Object);
+        }
+        
+        [TearDown]
+        public void Teardown()
+        {
+            _context.Database.EnsureDeleted();
         }
 
         [TestCase(1)]

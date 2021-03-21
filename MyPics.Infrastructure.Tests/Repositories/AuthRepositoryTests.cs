@@ -70,6 +70,12 @@ namespace MyPics.Infrastructure.Tests.Repositories
 
             _repository = new AuthRepository(_context);
         }
+        
+        [TearDown]
+        public void Teardown()
+        {
+            _context.Database.EnsureDeleted();
+        }
 
         [TestCase("testUsername1", "testPassword1", "test1@email.com")]
         [TestCase("testUsername2", "testPassword2", "test2@email.com")]
