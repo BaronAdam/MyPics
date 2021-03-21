@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -211,7 +212,7 @@ namespace MyPics.Infrastructure.Repositories
             {
                 var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
-                if (!user.IsPrivate) return null;
+                if (!user.IsPrivate) return new PagedList<UserForFollowDto>(new List<UserForFollowDto>(), 0, 0, 0);
                 
                 var users = _context.Follows.Where(x => x.FollowingId == userId && x.IsAccepted == false)
                     .Select(x => x.User)
