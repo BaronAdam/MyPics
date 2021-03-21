@@ -19,13 +19,11 @@ namespace MyPics.Api.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        private readonly IFollowRepository _followRepository;
 
-        public UserController(IUserRepository userRepository, IMapper mapper, IFollowRepository followRepository)
+        public UserController(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _mapper = mapper;
-            _followRepository = followRepository;
         }
 
         [HttpGet("find/{username}")]
@@ -46,64 +44,6 @@ namespace MyPics.Api.Controllers
             return Ok(mappedUser);
         }
 
-        [ProducesResponseType(typeof(PagedList<UserForFollowDto>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
-        [HttpGet("follows")]
-        public async Task<IActionResult> GetFollowsForUser([FromQuery] UserParameters parameters)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
-
-            var users = await _followRepository.GetUserFollows(userId, parameters);
-
-            if (users == null || !users.Any()) return BadRequest("Could not find any follows");
-
-            return Ok(users);
-        }
         
-        [ProducesResponseType(typeof(PagedList<UserForFollowDto>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
-        [HttpGet("followers")]
-        public async Task<IActionResult> GetFollowersForUser([FromQuery] UserParameters parameters)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
-
-            var users = await _followRepository.GetUserFollowers(userId, parameters);
-
-            if (users == null || !users.Any()) return BadRequest("Could not find any followers");
-
-            return Ok(users);
-        }
-
-        [ProducesResponseType(typeof(UserForFollowDto), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
-        [HttpGet("follows/{username}")]
-        public async Task<IActionResult> FindUserInFollows(string username)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
-
-            var user = await _followRepository.FindUserInFollows(userId, username);
-
-            if (user == null) return BadRequest("Could not find a specified user");
-
-            return Ok(user);
-        }
-        
-        [ProducesResponseType(typeof(UserForFollowDto), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
-        [HttpGet("followers/{username}")]
-        public async Task<IActionResult> FindUserInFollowers(string username)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
-
-            var user = await _followRepository.FindUserInFollowers(userId, username);
-
-            if (user == null) return BadRequest("Could not find a specified user");
-
-            return Ok(user);
-        }
     }
 }
