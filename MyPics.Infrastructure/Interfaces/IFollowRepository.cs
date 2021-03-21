@@ -14,7 +14,9 @@ namespace MyPics.Infrastructure.Interfaces
         Task<bool> FollowUser(int userId, int followeeId);
         Task<FollowStatusDto> GetFollowStatus(int userId, int followeeId);
         Task<bool> UnFollowUser(int userId, int followeeId);
-        Task<bool> AcceptFollow(int userId, int followeeId);
+        Task<bool> AcceptFollow(int userId, int followerId);
+        Task<bool> RejectFollow(int userId, int followerId);
+        Task<bool> RemoveFollower(int userId, int followerId);
         Task<PagedList<UserForFollowDto>> GetNotAcceptedFollows (UserParameters parameters, int userId);
     }
 }

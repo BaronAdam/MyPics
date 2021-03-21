@@ -146,15 +146,51 @@ namespace MyPics.Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> AcceptFollow(int userId, int followeeId)
+        public async Task<bool> AcceptFollow(int userId, int followerId)
         {
-            var follow = await GetFollow(userId, followeeId);
+            var follow = await GetFollow(followerId, userId);
 
             if (follow == null || follow.IsAccepted) return false;
             
             try
             {
                 _context.Follows.Update(follow);
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+        public async Task<bool> RejectFollow(int userId, int followerId)
+        {
+            var follow = await GetFollow(followerId, userId);
+
+            if (follow == null || follow.IsAccepted) return false;
+            
+            try
+            {
+                _context.Follows.Remove(follow);
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveFollower(int userId, int followerId)
+        {
+            var follow = await GetFollow(followerId, userId);
+
+            if (follow == null) return false;
+            
+            try
+            {
+                _context.Follows.Remove(follow);
                 return await _context.SaveChangesAsync() > 0;
             }
             catch (Exception e)
