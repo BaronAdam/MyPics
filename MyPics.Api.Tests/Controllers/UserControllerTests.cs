@@ -19,7 +19,7 @@ namespace MyPics.Api.Tests.Controllers
     [TestFixture]
     public class UserControllerTests
     {
-        private Mock<IUserRepository> _repository;
+        private Mock<IUserRepository> _userRepository;
         private Mock<IMapper> _mapper;
         private UserController _controller;
         
@@ -32,13 +32,13 @@ namespace MyPics.Api.Tests.Controllers
                 .Returns(() => new MapperConfiguration(
                         cfg => { cfg.CreateMap<User, UserForSearchDto>(); }));
 
-            _repository = new Mock<IUserRepository>();
-            
+            _userRepository = new Mock<IUserRepository>();
+
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
                 new Claim(ClaimTypes.NameIdentifier, "123"),
             },"TestAuthentication"));
 
-            _controller = new UserController(_repository.Object, _mapper.Object)
+            _controller = new UserController(_userRepository.Object, _mapper.Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -81,162 +81,10 @@ namespace MyPics.Api.Tests.Controllers
             result.Should().BeOfType<BadRequestObjectResult>();
         }
 
-        [Test]
-        public async Task GetFollowsForUser_ExistingFollows_ReturnsOk()
-        {
-            SetupRepoGetUserFollows(false, false);
-
-            var result = await _controller.GetFollowsForUser(new UserParameters());
-
-            result.Should().BeOfType<OkObjectResult>();
-        }
-        
-        [Test]
-        public async Task GetFollowsForUser_NotExistingFollows_ReturnsBadRequest()
-        {
-            SetupRepoGetUserFollows(false, true);
-
-            var result = await _controller.GetFollowsForUser(new UserParameters());
-
-            result.Should().BeOfType<BadRequestObjectResult>();
-        }
-        
-        [Test]
-        public async Task GetFollowsForUser_Exception_ReturnsBadRequest()
-        {
-            SetupRepoGetUserFollows(true, false);
-
-            var result = await _controller.GetFollowsForUser(new UserParameters());
-
-            result.Should().BeOfType<BadRequestObjectResult>();
-        }
-        
-        [Test]
-        public async Task GetFollowersForUser_ExistingFollowers_ReturnsOk()
-        {
-            SetupRepoGetUserFollowers(false, false);
-
-            var result = await _controller.GetFollowersForUser(new UserParameters());
-
-            result.Should().BeOfType<OkObjectResult>();
-        }
-        
-        [Test]
-        public async Task GetFollowersForUser_NotExistingFollowers_ReturnsBadRequest()
-        {
-            SetupRepoGetUserFollowers(false, true);
-
-            var result = await _controller.GetFollowersForUser(new UserParameters());
-
-            result.Should().BeOfType<BadRequestObjectResult>();
-        }
-        
-        [Test]
-        public async Task GetFollowersForUser_Exception_ReturnsBadRequest()
-        {
-            SetupRepoGetUserFollowers(true, false);
-
-            var result = await _controller.GetFollowersForUser(new UserParameters());
-
-            result.Should().BeOfType<BadRequestObjectResult>();
-        }
-
-        [Test]
-        public async Task FindUserInFollows_ExistingUser_ReturnsOk()
-        {
-            SetupRepoFindUserInFollows(false);
-
-            var result = await _controller.FindUserInFollows("testUsername");
-
-            result.Should().BeOfType<OkObjectResult>();
-        }
-        
-        [Test]
-        public async Task FindUserInFollows_NotExistingUserOrException_ReturnsBadRequest()
-        {
-            SetupRepoFindUserInFollows(true);
-
-            var result = await _controller.FindUserInFollows("testUsername");
-
-            result.Should().BeOfType<BadRequestObjectResult>();
-        }
-        
-        [Test]
-        public async Task FindUserInFollowers_ExistingUser_ReturnsOk()
-        {
-            SetupRepoFindUserInFollowers(false);
-
-            var result = await _controller.FindUserInFollowers("testUsername");
-
-            result.Should().BeOfType<OkObjectResult>();
-        }
-        
-        [Test]
-        public async Task FindUserInFollowers_NotExistingUserOrException_ReturnsBadRequest()
-        {
-            SetupRepoFindUserInFollowers(true);
-
-            var result = await _controller.FindUserInFollowers("testUsername");
-
-            result.Should().BeOfType<BadRequestObjectResult>();
-        }
-        
         private void SetupRepoGetUserByUsername(bool shouldReturnNull)
         {
-            _repository.Setup(x => x.GetUserByUsername(It.IsAny<string>()))
+            _userRepository.Setup(x => x.GetUserByUsername(It.IsAny<string>()))
                 .ReturnsAsync(() => shouldReturnNull ? null : new User());
-        }
-        
-        private void SetupRepoGetUserFollows(bool shouldReturnNull, bool shouldReturnEmpty)
-        {
-            if (shouldReturnEmpty)
-            {
-                _repository.Setup(x => x.GetUserFollows(It.IsAny<int>(), It.IsAny<UserParameters>()))
-                    .ReturnsAsync(() => new PagedList<UserForFollowDto>(new List<UserForFollowDto>(), 0, 0, 0));
-                return;
-            }
-
-            var list = new List<UserForFollowDto>();
-
-            for (var i = 0; i < 10; i++)
-            {
-                list.Add(new UserForFollowDto{ Username = "test"});
-            }
-
-            _repository.Setup(x => x.GetUserFollows(It.IsAny<int>(), It.IsAny<UserParameters>()))
-                .ReturnsAsync(() => shouldReturnNull ? null : new PagedList<UserForFollowDto>(list, 1, 10, 10));
-        }
-        
-        private void SetupRepoGetUserFollowers(bool shouldReturnNull, bool shouldReturnEmpty)
-        {
-            if (shouldReturnEmpty)
-            {
-                _repository.Setup(x => x.GetUserFollowers(It.IsAny<int>(), It.IsAny<UserParameters>()))
-                    .ReturnsAsync(() => new PagedList<UserForFollowDto>(new List<UserForFollowDto>(), 0, 0, 0));
-                return;
-            }
-
-            var list = new List<UserForFollowDto>();
-
-            for (var i = 0; i < 10; i++)
-            {
-                list.Add(new UserForFollowDto{ Username = "test"});
-            }
-
-            _repository.Setup(x => x.GetUserFollowers(It.IsAny<int>(), It.IsAny<UserParameters>()))
-                .ReturnsAsync(() => shouldReturnNull ? null : new PagedList<UserForFollowDto>(list, 1, 10, 10));
-        }
-        
-        private void SetupRepoFindUserInFollows(bool shouldReturnNull)
-        {
-            _repository.Setup(x => x.FindUserInFollows(It.IsAny<int>(), It.IsAny<string>()))
-                .ReturnsAsync(() => shouldReturnNull ? null : new UserForFollowDto());
-        }
-        
-        private void SetupRepoFindUserInFollowers(bool shouldReturnNull)
-        {
-            _repository.Setup(x => x.FindUserInFollowers(It.IsAny<int>(), It.IsAny<string>()))
-                .ReturnsAsync(() => shouldReturnNull ? null : new UserForFollowDto());
         }
     }
 }

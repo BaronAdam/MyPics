@@ -6,5 +6,6 @@ namespace MyPics.Domain.Models
         public int FollowingId { get; set; }
         public User User { get; set; }
         public User Following { get; set; }
+        public bool IsAccepted { get; set; }
     }
 }

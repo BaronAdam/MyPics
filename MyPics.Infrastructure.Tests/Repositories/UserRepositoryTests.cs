@@ -7,8 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
-using MyPics.Infrastructure.Helpers;
-using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Repositories;
 using NUnit.Framework;
@@ -65,18 +63,6 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 Email = "test3@email.com",
             });
 
-            _context.Follows.Add(new Follow
-            {
-                UserId = 1,
-                FollowingId = 2
-            });
-
-            _context.Follows.Add(new Follow
-            {
-                UserId = 3,
-                FollowingId = 1
-            });
-            
             try
             {
                 _context.SaveChanges();
@@ -87,6 +73,12 @@ namespace MyPics.Infrastructure.Tests.Repositories
             }
 
             _repository = new UserRepository(_context, _mapper.Object);
+        }
+        
+        [TearDown]
+        public void Teardown()
+        {
+            _context.Database.EnsureDeleted();
         }
 
         [TestCase(1)]
@@ -151,114 +143,6 @@ namespace MyPics.Infrastructure.Tests.Repositories
             result.Should().BeNull();
         }
 
-        [Test]
-        public async Task GetUserFollows_ExistingFollows_ReturnsExpected()
-        {
-            var result = await _repository.GetUserFollows(1, new UserParameters());
-
-            result.Should().NotBeNull();
-            result.Should().BeOfType<PagedList<UserForFollowDto>>();
-        }
         
-        [Test]
-        public async Task GetUserFollows_NotExistingFollows_ReturnsEmpty()
-        {
-            var result = await _repository.GetUserFollows(2, new UserParameters());
-
-            result.Should().BeEmpty();
-        }
-
-        [Test]
-        public async Task GetUserFollows_Exception_ReturnsNull()
-        {
-            _repository = new UserRepository(null, null);
-            
-            var result = await _repository.GetUserFollows(1, new UserParameters());
-
-            result.Should().BeNull();
-        }
-        
-        [Test]
-        public async Task GetUserFollowers_ExistingFollowers_ReturnsExpected()
-        {
-            var result = await _repository.GetUserFollowers(1, new UserParameters());
-
-            result.Should().NotBeNull();
-            result.Should().BeOfType<PagedList<UserForFollowDto>>();
-        }
-        
-        [Test]
-        public async Task GetUserFollowers_NotExistingFollowers_ReturnsEmpty()
-        {
-            var result = await _repository.GetUserFollowers(3, new UserParameters());
-
-            result.Should().BeEmpty();
-        }
-
-        [Test]
-        public async Task GetUserFollowers_Exception_ReturnsNull()
-        {
-            _repository = new UserRepository(null, null);
-            
-            var result = await _repository.GetUserFollowers(1, new UserParameters());
-
-            result.Should().BeNull();
-        }
-
-        // [Test]
-        // public async Task FindUserInFollows_ExistingUser_ReturnsUser()
-        // {
-        //     var result = await _repository.FindUserInFollows(1, "testUsername2");
-        //
-        //     result.Should().NotBeNull();
-        //     result.Should().BeOfType<UserForFollowDto>();
-        //     result.Username.Should().Be("testUsername2");
-        // }
-        
-        [Test]
-        public async Task FindUserInFollows_NotExistingUser_ReturnsNull()
-        {
-            var result = await _repository.FindUserInFollows(1, "notExistingTestUsername");
-
-            result.Should().BeNull();
-        }
-        
-        [Test]
-        public async Task FindUserInFollows_Exception_ReturnsNull()
-        {
-            _repository = new UserRepository(null, null);
-            
-            var result = await _repository.FindUserInFollows(1, "testUsername2");
-
-            result.Should().BeNull();
-        }
-        
-        // [Test]
-        // public async Task FindUserInFollowers_ExistingUser_ReturnsUser()
-        // {
-        //     var result = await _repository.FindUserInFollowers(1, "testUsername3");
-        //
-        //     result.Should().NotBeNull();
-        //     result.Should().BeOfType<UserForFollowDto>();
-        //     result.Username.Should().Be("testUsername3");
-        // }
-        
-        [Test]
-        public async Task FindUserInFollowers_NotExistingUser_ReturnsNull()
-        {
-            var result = await _repository.FindUserInFollowers(1, "notExistingTestUsername");
-
-            result.Should().BeNull();
-        }
-        
-        [Test]
-        public async Task FindUserInFollowers_Exception_ReturnsNull()
-        {
-            _repository = new UserRepository(null, null);
-            
-            var result = await _repository.FindUserInFollowers(1, "testUsername3");
-
-            result.Should().BeNull();
-        }
     }
 }
