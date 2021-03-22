@@ -49,6 +49,7 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 Id = 1,
                 Username = "testUsername1",
                 Email = "test1@email.com",
+                IsPrivate = true
             });
             _context.Users.Add(new User
             {
@@ -73,6 +74,7 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 Id = 5,
                 Username = "testUsername5",
                 Email = "test5@email.com",
+                IsPrivate = true
             });
             _context.Users.Add(new User
             {
@@ -357,6 +359,58 @@ namespace MyPics.Infrastructure.Tests.Repositories
         }
 
         [Test]
+        public async Task RejectFollow_ExistingFollow_ReturnsTrue()
+        {
+            var result = await _repository.RejectFollow(1, 3);
+
+            result.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task RejectFollow_ExistingFollowAlreadyAccepted_ReturnsFalse()
+        {
+            var result = await _repository.RejectFollow(2, 1);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task RejectFollow_Exception_ReturnsFalse()
+        {
+            _repository = new FollowRepository(null, null);
+            
+            var result = await _repository.RejectFollow(1, 3);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task RemoveFollower_ExistingFollower_ReturnsTrue()
+        {
+            var result = await _repository.RemoveFollower(1, 3);
+
+            result.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task RejectFollower_NotExistingFollower_ReturnsFalse()
+        {
+            var result = await _repository.RemoveFollower(2, 10);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task RemoveFollower_Exception_ReturnsFalse()
+        {
+            _repository = new FollowRepository(null, null);
+            
+            var result = await _repository.RemoveFollower(1, 3);
+
+            result.Should().BeFalse();
+        }
+
+        [Test]
         public async Task GetNotAcceptedFollows_ExistingFollows_ReturnsExpected()
         {
             var parameters = new UserParameters();
@@ -372,7 +426,18 @@ namespace MyPics.Infrastructure.Tests.Repositories
         {
             var parameters = new UserParameters();
 
-            var result = await _repository.GetNotAcceptedFollows(parameters, 10);
+            var result = await _repository.GetNotAcceptedFollows(parameters, 5);
+
+            result.Should().BeOfType<PagedList<UserForFollowDto>>();
+            result.Should().BeEmpty();
+        }
+        
+        [Test]
+        public async Task GetNotAcceptedFollows_NotPrivateProfile_ReturnsExpected()
+        {
+            var parameters = new UserParameters();
+
+            var result = await _repository.GetNotAcceptedFollows(parameters, 6);
 
             result.Should().BeOfType<PagedList<UserForFollowDto>>();
             result.Should().BeEmpty();
