@@ -25,8 +25,7 @@ namespace MyPics.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var emailConfiguration = Configuration.GetSection("EmailConfirmation").Get<EmailConfiguration>();
-            services.AddSingleton(emailConfiguration);
+            services.Configure<EmailConfiguration>(Configuration.GetSection("EmailConfiguration"));
             
             services.AddControllers();
             
