@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using Moq;
 using MyPics.Domain.Email;
@@ -14,6 +15,7 @@ namespace MyPics.Infrastructure.Tests.Services
     public class EmailServiceTests
     {
         private EmailService _service;
+        private Mock<IOptions<EmailConfiguration>> _optionsMock;
         
         [SetUp]
         public void Setup()
@@ -25,8 +27,18 @@ namespace MyPics.Infrastructure.Tests.Services
             smtpClientMock.Setup(c => c.SendAsync(It.IsAny<MimeMessage>(), new CancellationToken(), null));
             smtpClientMock.Setup(c => c.Disconnect(It.IsAny<bool>(), new CancellationToken()));
 
-            _service = new EmailService(new EmailConfiguration {SenderName = "testSender", Sender = "email@test.com"},
-                smtpClientMock.Object);
+            _optionsMock = new Mock<IOptions<EmailConfiguration>>();
+
+            var emailConfiguration = new EmailConfiguration
+            {
+                SenderName = "testSender", 
+                Sender = "email@test.com"
+            };
+
+            _optionsMock.Setup(x => x.Value)
+                .Returns(emailConfiguration);
+            
+            _service = new EmailService(_optionsMock.Object, smtpClientMock.Object);
         }
 
         [Test]
@@ -54,8 +66,7 @@ namespace MyPics.Infrastructure.Tests.Services
         [Test]
         public async Task SendEmail_Exception_ReturnsFalse()
         {
-            _service = new EmailService(new EmailConfiguration {SenderName = "testSender", Sender = "email@test.com"},
-                null);
+            _service = new EmailService(_optionsMock.Object, null);
             
             var result = await _service.SendEmail(new EmailMessage
             {

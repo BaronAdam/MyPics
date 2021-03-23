@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
 using MyPics.Domain.Email;
@@ -13,9 +14,9 @@ namespace MyPics.Infrastructure.Services
         private readonly ISmtpClient _client;
         private readonly EmailConfiguration _configuration;
 
-        public EmailService(EmailConfiguration configuration, ISmtpClient client)
+        public EmailService(IOptions<EmailConfiguration> configuration, ISmtpClient client)
         {
-            _configuration = configuration;
+            _configuration = configuration.Value;
             
             _client = client;
         }
