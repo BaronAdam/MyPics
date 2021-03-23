@@ -49,5 +49,30 @@ namespace MyPics.Infrastructure.Repositories
                 return null;
             }
         }
+
+        public async Task<bool> ChangeProfilePicture(int id, string pictureUrl)
+        {
+            var user = await GetUserById(id);
+
+            if (user == null) return false;
+
+            user.ProfilePictureUrl = pictureUrl;
+
+            return await UpdateUser(user);
+        }
+
+        private async Task<bool> UpdateUser(User user)
+        {
+            try
+            {
+                _context.Users.Update(user);
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
     }
 }
