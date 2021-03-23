@@ -51,7 +51,7 @@ namespace MyPics.Api.Controllers
 
             if (registeredUser == null) return StatusCode((int) HttpStatusCode.InternalServerError);
 
-            var result = await SendEmail(registeredUser);
+            var result = await SendConfirmationEmail(registeredUser);
 
             return result ? Ok() : StatusCode((int) HttpStatusCode.InternalServerError);
         }
@@ -68,7 +68,7 @@ namespace MyPics.Api.Controllers
 
             if (!user.IsConfirmed)
             {
-                var result = await SendEmail(user);
+                var result = await SendConfirmationEmail(user);
                 
                 return result ? Unauthorized("Please confirm your e-mail address first.") 
                     : StatusCode((int) HttpStatusCode.InternalServerError);
@@ -123,7 +123,18 @@ namespace MyPics.Api.Controllers
             return result ? Ok("Email confirmed.") : Unauthorized("Verification link is not valid.");
         }
 
-        private async Task<bool> SendEmail(User user)
+        private async Task<bool> SendConfirmationEmail(User user)
+        {
+            var emailActionLink = Url.Action("ConfirmEmail", "Auth",
+                new {Token = user.RegistrationToken, Username = user.Username},
+                ControllerContext.HttpContext.Request.Scheme);
+
+            var message = ConfirmationEmailBuilder.BuildConfirmationMessage(user.Email, user.Username, emailActionLink);
+            
+            return await _emailService.SendEmail(message);
+        }
+        
+        private async Task<bool> SendChangeEmailEmail(User user)
         {
             var emailActionLink = Url.Action("ConfirmEmail", "Auth",
                 new {Token = user.RegistrationToken, Username = user.Username},

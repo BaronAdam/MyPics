@@ -17,6 +17,9 @@ namespace MyPics.Domain.Models
         [Encrypted] public string Email { get; set; }
         [Encrypted] public string ProfilePictureUrl { get; set; }
         public bool IsPrivate { get; set; }
+        [Encrypted] public string ChangeEmailToken { get; set; }
+        public DateTime ChangeEmailTokenGeneratedTime { get; set; }
+        [Encrypted] public string NewEmail { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
