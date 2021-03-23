@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using MyPics.Api.Configuration;
+using MyPics.Domain.Cloudinary;
 using MyPics.Domain.Email;
 using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Persistence.DatabaseSeed;
@@ -26,6 +27,7 @@ namespace MyPics.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<EmailConfiguration>(Configuration.GetSection("EmailConfiguration"));
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
             
             services.AddControllers();
             
