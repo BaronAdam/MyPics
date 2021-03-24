@@ -2,7 +2,6 @@
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPics.Domain.DTOs;

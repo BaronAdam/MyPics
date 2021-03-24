@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
-using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
-using MyPics.Infrastructure.Helpers;
-using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Interfaces;
 using MyPics.Infrastructure.Persistence;
 
