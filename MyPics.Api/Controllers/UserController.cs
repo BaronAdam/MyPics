@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,8 +8,6 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPics.Domain.DTOs;
-using MyPics.Infrastructure.Helpers;
-using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Interfaces;
 
 namespace MyPics.Api.Controllers
@@ -69,7 +66,7 @@ namespace MyPics.Api.Controllers
             };
             var uploadResult = await _cloudinaryService.UploadImageAsync(uploadParameters);
 
-            if (string.IsNullOrEmpty(uploadResult.PublicId))
+            if (uploadResult == null || string.IsNullOrEmpty(uploadResult.PublicId))
                 return BadRequest("There was an error while uploading Your photo.");
 
             var result = await _userRepository.ChangeProfilePicture(userId, uploadResult.Url.ToString());
