@@ -143,6 +143,20 @@ namespace MyPics.Infrastructure.Tests.Repositories
             result.Should().BeNull();
         }
 
+        [Test]
+        public async Task ChangeProfilePicture_Successful_ReturnsTrue()
+        {
+            var result = await _repository.ChangeProfilePicture(1, "test.com/picture");
+
+            result.Should().BeTrue();
+        }
         
+        [Test]
+        public async Task ChangeProfilePicture_UnSuccessfulNotExistingUser_ReturnsTrue()
+        {
+            var result = await _repository.ChangeProfilePicture(100, "test.com/picture");
+
+            result.Should().BeFalse();
+        }
     }
 }

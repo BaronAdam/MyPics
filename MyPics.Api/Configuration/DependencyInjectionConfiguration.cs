@@ -16,6 +16,7 @@ namespace MyPics.Api.Configuration
 
             services.AddScoped<ISmtpClient, SmtpClient>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
         }
     }
 }

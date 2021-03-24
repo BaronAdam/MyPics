@@ -15,7 +15,7 @@ namespace MyPics.Domain.Models
         public DateTime RegistrationTokenGeneratedTime { get; set; }
         public string DisplayName { get; set; }
         [Encrypted] public string Email { get; set; }
-        [Encrypted] public string ProfilePictureUrl { get; set; }
+        public string ProfilePictureUrl { get; set; }
         public bool IsPrivate { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }

@@ -10,5 +10,6 @@ namespace MyPics.Infrastructure.Interfaces
     {
         Task<User> GetUserById(int id);
         Task<User> GetUserByUsername(string username);
+        Task<bool> ChangeProfilePicture(int id, string pictureUrl);
     }
 }
