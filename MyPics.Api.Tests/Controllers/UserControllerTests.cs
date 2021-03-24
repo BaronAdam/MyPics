@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.IO;
 using System.Security.Claims;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using CloudinaryDotNet.Actions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +13,6 @@ using Moq;
 using MyPics.Api.Controllers;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
-using MyPics.Infrastructure.Helpers;
-using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Interfaces;
 using NUnit.Framework;
 
@@ -20,8 +22,10 @@ namespace MyPics.Api.Tests.Controllers
     public class UserControllerTests
     {
         private Mock<IUserRepository> _userRepository;
+        private Mock<ICloudinaryService> _cloudinaryService;
         private Mock<IMapper> _mapper;
         private UserController _controller;
+        private Mock<IFormFile> _formFile;
         
         [SetUp]
         public void Setup()
@@ -38,7 +42,9 @@ namespace MyPics.Api.Tests.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "123"),
             },"TestAuthentication"));
 
-            _controller = new UserController(_userRepository.Object, _mapper.Object)
+            _cloudinaryService = new Mock<ICloudinaryService>();
+
+            _controller = new UserController(_userRepository.Object, _mapper.Object, _cloudinaryService.Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -48,6 +54,9 @@ namespace MyPics.Api.Tests.Controllers
                     }
                 }
             };
+            
+            _formFile = new Mock<IFormFile>();
+            SetupFileMock();
         }
 
         [Test]
@@ -81,10 +90,87 @@ namespace MyPics.Api.Tests.Controllers
             result.Should().BeOfType<BadRequestObjectResult>();
         }
 
+        [Test]
+        public async Task UploadProfilePicture_Successful_ReturnsOk()
+        {
+            SetupServiceUploadImageAsync(false);
+            SetupRepoChangeProfilePicture(false);
+
+            var result = await _controller.UploadProfilePicture(new ProfilePictureDto {File = _formFile.Object});
+
+            result.Should().BeOfType<OkResult>();
+        }
+        
+        [Test]
+        public async Task UploadProfilePicture_UnSuccessfulNullFile_ReturnsBadRequest()
+        {
+            SetupServiceUploadImageAsync(false);
+            SetupRepoChangeProfilePicture(false);
+            _formFile = new Mock<IFormFile>();
+
+            var result = await _controller.UploadProfilePicture(new ProfilePictureDto {File = _formFile.Object});
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task UploadProfilePicture_UnSuccessfulNullUploadResult_ReturnsBadRequest()
+        {
+            SetupServiceUploadImageAsync(true);
+            SetupRepoChangeProfilePicture(false);
+
+            var result = await _controller.UploadProfilePicture(new ProfilePictureDto {File = _formFile.Object});
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task UploadProfilePicture_UnSuccessfulNullRepoResult_ReturnsBadRequest()
+        {
+            SetupServiceUploadImageAsync(false);
+            SetupRepoChangeProfilePicture(true);
+
+            var result = await _controller.UploadProfilePicture(new ProfilePictureDto {File = _formFile.Object});
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
         private void SetupRepoGetUserByUsername(bool shouldReturnNull)
         {
             _userRepository.Setup(x => x.GetUserByUsername(It.IsAny<string>()))
                 .ReturnsAsync(() => shouldReturnNull ? null : new User());
+        }
+
+        private void SetupRepoChangeProfilePicture(bool shouldReturnFalse)
+        {
+            _userRepository.Setup(x => x.ChangeProfilePicture(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync(!shouldReturnFalse);
+        }
+
+        private void SetupServiceUploadImageAsync(bool shouldReturnNull)
+        {
+            var uploadResult = new ImageUploadResult
+            {
+                PublicId = "testId",
+                Url = new Uri("https://localhost:5001")
+            };
+
+            _cloudinaryService.Setup(x => x.UploadImageAsync(It.IsAny<ImageUploadParams>()))
+                .ReturnsAsync(shouldReturnNull ? null : uploadResult);
+        }
+
+        private void SetupFileMock()
+        {
+            var content = "Hello World from a Fake File";
+            var fileName = "test.pdf";
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms);
+            writer.Write(content);
+            writer.Flush();
+            ms.Position = 0;
+            _formFile.Setup(_ => _.OpenReadStream()).Returns(ms);
+            _formFile.Setup(_ => _.FileName).Returns(fileName);
+            _formFile.Setup(_ => _.Length).Returns(ms.Length);
         }
     }
 }
