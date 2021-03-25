@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
-using MyPics.Domain.Email;
+using MyPics.Infrastructure.Persistence;
 using NUnit.Framework;
 
-namespace MyPics.Domain.Tests.Email
+namespace MyPics.Infrastructure.Tests.Persistence
 {
     [TestFixture]
     public class EmailConfigurationTests

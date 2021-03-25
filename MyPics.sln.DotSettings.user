@@ -6,6 +6,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2a3d16c1_002D71ac_002D41b2_002D9a30_002D8150c1984b6f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ChangeProfilePicture_Successful_ReturnsTrue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.Repositories.UserRepositoryTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.Persistence.CloudinarySettingsTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
