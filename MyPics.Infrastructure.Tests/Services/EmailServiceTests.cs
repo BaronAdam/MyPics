@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using Moq;
 using MyPics.Domain.Email;
+using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Services;
 using NUnit.Framework;
 

@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using MyPics.Api.Configuration;
-using MyPics.Domain.Cloudinary;
 using MyPics.Domain.Email;
 using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Persistence.DatabaseSeed;

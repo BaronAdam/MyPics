@@ -1,4 +1,4 @@
-﻿namespace MyPics.Domain.Email
+﻿namespace MyPics.Infrastructure.Persistence
 {
     public class EmailConfiguration
     {
