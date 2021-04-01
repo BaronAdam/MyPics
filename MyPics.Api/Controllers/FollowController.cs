@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyPics.Api.Extensions;
 using MyPics.Domain.DTOs;
 using MyPics.Infrastructure.Helpers;
 using MyPics.Infrastructure.Helpers.PaginationParameters;
@@ -35,6 +36,8 @@ namespace MyPics.Api.Controllers
             var users = await _followRepository.GetUserFollows(userId, parameters);
 
             if (users == null || !users.Any()) return BadRequest("Could not find any follows");
+            
+            Response.AddPaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages);
 
             return Ok(users);
         }
@@ -51,6 +54,8 @@ namespace MyPics.Api.Controllers
             var users = await _followRepository.GetUserFollowers(userId, parameters);
 
             if (users == null || !users.Any()) return BadRequest("Could not find any followers");
+            
+            Response.AddPaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages);
 
             return Ok(users);
         }
@@ -181,7 +186,11 @@ namespace MyPics.Api.Controllers
 
             var result = await _followRepository.GetNotAcceptedFollows(userParameters, userId);
             
-            return result != null ? Ok(result) : BadRequest("There was an error while processing Your request.");
+            if (result == null) return BadRequest("There was an error while processing Your request.");
+            
+            Response.AddPaginationHeader(result.CurrentPage, result.PageSize, result.TotalCount, result.TotalPages);
+
+            return Ok(result);
         }
     }
 }
