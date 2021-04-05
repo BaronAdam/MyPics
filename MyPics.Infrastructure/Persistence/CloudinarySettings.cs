@@ -1,4 +1,4 @@
-namespace MyPics.Domain.Cloudinary
+namespace MyPics.Infrastructure.Persistence
 {
     public class CloudinarySettings
     {

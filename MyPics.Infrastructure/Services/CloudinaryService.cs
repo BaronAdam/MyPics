@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
-using MyPics.Domain.Cloudinary;
 using MyPics.Infrastructure.Interfaces;
+using MyPics.Infrastructure.Persistence;
 
 namespace MyPics.Infrastructure.Services
 {

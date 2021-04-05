@@ -114,7 +114,7 @@ namespace MyPics.Infrastructure.Repositories
 
             var interval = DateTime.UtcNow - user.RegistrationTokenGeneratedTime;
             
-            if (interval.Hours >= 3) return false;
+            if (interval.Hours >= ExpirationTimeInHours) return false;
 
             if (user.RegistrationToken != token) return false;
 

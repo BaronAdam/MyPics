@@ -6,6 +6,7 @@ using MimeKit;
 using MimeKit.Text;
 using MyPics.Domain.Email;
 using MyPics.Infrastructure.Interfaces;
+using MyPics.Infrastructure.Persistence;
 
 namespace MyPics.Infrastructure.Services
 {
