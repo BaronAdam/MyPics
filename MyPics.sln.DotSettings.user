@@ -7,6 +7,7 @@
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.Repositories.UserRepositoryTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.Persistence.CloudinarySettingsTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::AA187832-55A6-49DE-920A-91F04244936D::net5.0::MyPics.Domain.Tests.DTOs.PostForAddDtoTests.TestAll_ExpectedResult&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
