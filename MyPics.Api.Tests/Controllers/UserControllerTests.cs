@@ -12,6 +12,7 @@ using MyPics.Api.Controllers;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
 using MyPics.Infrastructure.Interfaces;
+using MyPics.Infrastructure.Persistence;
 using NUnit.Framework;
 
 namespace MyPics.Api.Tests.Controllers
@@ -91,7 +92,7 @@ namespace MyPics.Api.Tests.Controllers
         [Test]
         public async Task UploadProfilePicture_Successful_ReturnsOk()
         {
-            SetupServiceUploadImageAsync(false);
+            SetupServiceUploadFile(false);
             SetupRepoChangeProfilePicture(false);
 
             var result = await _controller.UploadProfilePicture(new ProfilePictureDto {File = _formFile.Object});
@@ -102,7 +103,7 @@ namespace MyPics.Api.Tests.Controllers
         [Test]
         public async Task UploadProfilePicture_UnSuccessfulNullFile_ReturnsBadRequest()
         {
-            SetupServiceUploadImageAsync(false);
+            SetupServiceUploadFile(false);
             SetupRepoChangeProfilePicture(false);
             _formFile = new Mock<IFormFile>();
 
@@ -114,7 +115,7 @@ namespace MyPics.Api.Tests.Controllers
         [Test]
         public async Task UploadProfilePicture_UnSuccessfulNullUploadResult_ReturnsBadRequest()
         {
-            SetupServiceUploadImageAsync(true);
+            SetupServiceUploadFile(true);
             SetupRepoChangeProfilePicture(false);
 
             var result = await _controller.UploadProfilePicture(new ProfilePictureDto {File = _formFile.Object});
@@ -125,7 +126,7 @@ namespace MyPics.Api.Tests.Controllers
         [Test]
         public async Task UploadProfilePicture_UnSuccessfulNullRepoResult_ReturnsBadRequest()
         {
-            SetupServiceUploadImageAsync(false);
+            SetupServiceUploadFile(false);
             SetupRepoChangeProfilePicture(true);
 
             var result = await _controller.UploadProfilePicture(new ProfilePictureDto {File = _formFile.Object});
@@ -145,7 +146,7 @@ namespace MyPics.Api.Tests.Controllers
                 .ReturnsAsync(!shouldReturnFalse);
         }
 
-        private void SetupServiceUploadImageAsync(bool shouldReturnNull)
+        private void SetupServiceUploadFile(bool shouldReturnNull)
         {
             var uploadResult = new ImageUploadResult
             {
@@ -153,8 +154,8 @@ namespace MyPics.Api.Tests.Controllers
                 Url = new Uri("https://localhost:5001")
             };
 
-            _cloudinaryService.Setup(x => x.UploadImageAsync(It.IsAny<ImageUploadParams>()))
-                .ReturnsAsync(shouldReturnNull ? null : uploadResult);
+            _cloudinaryService.Setup(x => x.UploadFile(It.IsAny<Stream>(), It.IsAny<string>()))
+                .ReturnsAsync(shouldReturnNull ? null : new CustomUploadResult(uploadResult));
         }
 
         private void SetupFileMock()

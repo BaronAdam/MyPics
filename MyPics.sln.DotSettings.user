@@ -3,19 +3,15 @@
   &lt;Assembly Path="C:\Users\adamo\.nuget\packages\mailkit\2.11.0\lib\net50\MailKit.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\adamo\AppData\Local\JetBrains\Rider2020.3\resharper-host\temp\Rider\vAny\CoverageData\_MyPics.2103707504\Snapshot\snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2a3d16c1_002D71ac_002D41b2_002D9a30_002D8150c1984b6f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ChangeProfilePicture_Successful_ReturnsTrue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f455821b_002D87d6_002D4ae7_002Da6c9_002D550a2520d1b2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PostControllerTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.Repositories.UserRepositoryTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.Persistence.CloudinarySettingsTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::AA187832-55A6-49DE-920A-91F04244936D::net5.0::MyPics.Domain.Tests.DTOs.PostForAddDtoTests.TestAll_ExpectedResult&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=491b7d36_002D8e66_002D4427_002Da5d0_002Dec6e62ec9a8a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AddPost_CorrectPost_ReturnsPost" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::ACBD7A19-0F7D-444F-857B-BFC9855F1FA1::net5.0::MyPics.Infrastructure.Tests.Repositories.PostRepositoryTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests.AddPost_CorrectPost_ReturnsOk&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
 	
 	
 	
