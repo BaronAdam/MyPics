@@ -53,6 +53,8 @@ namespace MyPics.Api.Controllers
 
             var result = await _postRepository.AddPost(post);
 
+            if (result == null) return BadRequest("There was an error while processing Your request");
+
             var pictures = new List<Picture>();
 
             foreach (var file in formFiles)
@@ -73,7 +75,9 @@ namespace MyPics.Api.Controllers
             
             var picturesResult = await _pictureRepository.AddPicturesForPost(pictures);
 
-            return (result != null) && picturesResult ? Ok() 
+            if (!picturesResult) await _postRepository.DeletePost(result.Id);
+
+            return picturesResult ? Ok() 
                 : BadRequest("There was an error while processing Your request.");
         }
     }
