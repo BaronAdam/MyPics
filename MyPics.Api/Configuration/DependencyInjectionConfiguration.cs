@@ -13,6 +13,8 @@ namespace MyPics.Api.Configuration
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IFollowRepository, FollowRepository>();
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<IPictureRepository, PictureRepository>();
 
             services.AddScoped<ISmtpClient, SmtpClient>();
             services.AddScoped<IEmailService, EmailService>();

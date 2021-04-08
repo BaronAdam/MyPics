@@ -11,6 +11,8 @@ namespace MyPics.Api.Helpers
             CreateMap<UserForRegisterDto, User>();
             CreateMap<User, UserForSearchDto>();
             CreateMap<User, UserForFollowDto>();
+
+            CreateMap<PostForAddDto, Post>().ForSourceMember(x => x.Files, opt => opt.DoNotValidate());
         }
     }
 }
