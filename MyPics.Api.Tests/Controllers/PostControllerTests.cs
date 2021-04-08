@@ -13,6 +13,7 @@ using MyPics.Api.Controllers;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
 using MyPics.Infrastructure.Interfaces;
+using MyPics.Infrastructure.Persistence;
 using NUnit.Framework;
 
 namespace MyPics.Api.Tests.Controllers
@@ -36,17 +37,17 @@ namespace MyPics.Api.Tests.Controllers
                 new Claim(ClaimTypes.NameIdentifier, "123"),
             },"TestAuthentication"));
 
-            var mapper = new Mock<IMapper>();
-            
-            mapper.Setup(x => x.ConfigurationProvider)
-                .Returns(() => new MapperConfiguration(
-                    cfg => { cfg.CreateMap<PostForAddDto, Post>()
-                        .ForSourceMember(x => x.Files, opt => opt.DoNotValidate());; }));
+            var config = new MapperConfiguration(c =>
+            {
+                c.CreateMap<PostForAddDto, Post>();
+            });
+
+            var mapper = config.CreateMapper();
 
             _cloudinaryService = new Mock<ICloudinaryService>();
 
             _controller = new PostController(_postRepository.Object, _pictureRepository.Object, 
-                _cloudinaryService.Object, mapper.Object)
+                _cloudinaryService.Object, mapper)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -61,30 +62,123 @@ namespace MyPics.Api.Tests.Controllers
             SetupFileMock();
         }
 
-        // [Test]
-        // public async Task AddPost_CorrectPost_ReturnsOk()
-        // {
-        //     SetupRepoAddPost(false);
-        //     SetupRepoDeletePost(false);
-        //     SetupRepoAddPicturesForPost(false);
-        //     SetupServiceUploadImageAsync(false);
-        //
-        //     var dto = new PostForAddDto
-        //     {
-        //         Description = "test",
-        //         NumberOfPictures = 1,
-        //         Files = new List<IFormFile>
-        //         {
-        //             _formFile.Object
-        //         }
-        //     };
-        //
-        //     var result = await _controller.AddPost(dto);
-        //
-        //     result.Should().NotBeNull();
-        //     result.Should().NotBeOfType<OkResult>();
-        // }
+        [Test]
+        public async Task AddPost_CorrectPost_ReturnsOk()
+        {
+            SetupRepoAddPost(false);
+            SetupRepoDeletePost(false);
+            SetupRepoAddPicturesForPost(false);
+            SetupServiceUploadFile(false);
+        
+            var dto = new PostForAddDto
+            {
+                Description = "test",
+                NumberOfPictures = 1,
+                Files = new List<IFormFile>
+                {
+                    _formFile.Object
+                }
+            };
+        
+            var result = await _controller.AddPost(dto);
+        
+            result.Should().NotBeNull();
+            result.Should().BeOfType<OkResult>();
+        }
+        
+        [Test]
+        public async Task AddPost_InCorrectPost_ReturnsBadRequest()
+        {
+            SetupRepoAddPost(false);
+            SetupRepoDeletePost(false);
+            SetupRepoAddPicturesForPost(false);
+            SetupServiceUploadFile(false);
+        
+            var dto = new PostForAddDto
+            {
+                Description = "test",
+                NumberOfPictures = 1,
+                Files = new List<IFormFile>()
+            };
+        
+            var result = await _controller.AddPost(dto);
+        
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task AddPost_FailWhileAddingPost_ReturnsBadRequest()
+        {
+            SetupRepoAddPost(true);
+            SetupRepoDeletePost(false);
+            SetupRepoAddPicturesForPost(false);
+            SetupServiceUploadFile(false);
+        
+            var dto = new PostForAddDto
+            {
+                Description = "test",
+                NumberOfPictures = 1,
+                Files = new List<IFormFile>()
+                {
+                    _formFile.Object
+                }
+            };
+        
+            var result = await _controller.AddPost(dto);
+        
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
 
+        [Test]
+        public async Task AddPost_FailWhileAddingPictures_ReturnsBadRequest()
+        {
+            SetupRepoAddPost(false);
+            SetupRepoDeletePost(false);
+            SetupRepoAddPicturesForPost(true);
+            SetupServiceUploadFile(false);
+        
+            var dto = new PostForAddDto
+            {
+                Description = "test",
+                NumberOfPictures = 1,
+                Files = new List<IFormFile>()
+                {
+                    _formFile.Object
+                }
+            };
+        
+            var result = await _controller.AddPost(dto);
+        
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task AddPost_FailWhileUploading_ReturnsBadRequest()
+        {
+            SetupRepoAddPost(false);
+            SetupRepoDeletePost(false);
+            SetupRepoAddPicturesForPost(false);
+            SetupServiceUploadFile(true);
+        
+            var dto = new PostForAddDto
+            {
+                Description = "test",
+                NumberOfPictures = 1,
+                Files = new List<IFormFile>()
+                {
+                    _formFile.Object
+                }
+            };
+        
+            var result = await _controller.AddPost(dto);
+        
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
         private void SetupRepoAddPost(bool shouldReturnNull)
         {
             _postRepository.Setup(x => x.AddPost(It.IsAny<Post>()))
@@ -103,7 +197,7 @@ namespace MyPics.Api.Tests.Controllers
                 .ReturnsAsync(!shouldReturnFalse);
         }
         
-        private void SetupServiceUploadImageAsync(bool shouldReturnNull)
+        private void SetupServiceUploadFile(bool shouldReturnNull)
         {
             var uploadResult = new ImageUploadResult
             {
@@ -111,8 +205,8 @@ namespace MyPics.Api.Tests.Controllers
                 Url = new Uri("https://localhost:5001")
             };
 
-            _cloudinaryService.Setup(x => x.UploadImageAsync(It.IsAny<ImageUploadParams>()))
-                .ReturnsAsync(shouldReturnNull ? null : uploadResult);
+            _cloudinaryService.Setup(x => x.UploadFile(It.IsAny<Stream>(), It.IsAny<string>()))
+                .ReturnsAsync(shouldReturnNull ? null : new CustomUploadResult(uploadResult));
         }
         
         private void SetupFileMock()

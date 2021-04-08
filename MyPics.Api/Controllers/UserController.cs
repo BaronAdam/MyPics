@@ -1,10 +1,7 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPics.Domain.DTOs;
@@ -59,17 +56,13 @@ namespace MyPics.Api.Controllers
             if (file == null || file.Length <= 0) return BadRequest("There was an error with the file.");
             
             await using var stream = file.OpenReadStream();
-            var uploadParameters = new ImageUploadParams
-            {
-                File = new FileDescription(Guid.NewGuid().ToString(), stream),
-                Transformation = new Transformation().Quality(50)
-            };
-            var uploadResult = await _cloudinaryService.UploadImageAsync(uploadParameters);
+            
+            var uploadResult = await _cloudinaryService.UploadFile(stream, file.FileName);
 
-            if (uploadResult == null || string.IsNullOrEmpty(uploadResult.PublicId))
+            if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url))
                 return BadRequest("There was an error while uploading Your photo.");
 
-            var result = await _userRepository.ChangeProfilePicture(userId, uploadResult.Url.ToString());
+            var result = await _userRepository.ChangeProfilePicture(userId, uploadResult.Url);
 
             return result ? Ok() : BadRequest("There was an error while processing your request.");
         }

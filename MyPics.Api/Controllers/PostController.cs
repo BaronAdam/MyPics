@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
-using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPics.Domain.DTOs;
@@ -56,31 +53,31 @@ namespace MyPics.Api.Controllers
 
             var result = await _postRepository.AddPost(post);
 
+            if (result == null) return BadRequest("There was an error while processing Your request");
+
             var pictures = new List<Picture>();
 
             foreach (var file in formFiles)
             {
                 await using var stream = file.OpenReadStream();
-                var uploadParameters = new ImageUploadParams
-                {
-                    File = new FileDescription(Guid.NewGuid().ToString(), stream),
-                    Transformation = new Transformation().Quality(50)
-                };
-                var uploadResult = await _cloudinaryService.UploadImageAsync(uploadParameters);
+                
+                var uploadResult = await _cloudinaryService.UploadFile(stream, file.FileName);
 
-                if (uploadResult == null || string.IsNullOrEmpty(uploadResult.PublicId))
+                if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url))
                 {
                     await _postRepository.DeletePost(result.Id);
                     
                     return BadRequest("There was an error while uploading Your photo.");
                 }
                 
-                pictures.Add(new Picture {PostId = result.Id, Url = uploadResult.Url.ToString()});
+                pictures.Add(new Picture {PostId = result.Id, Url = uploadResult.Url});
             }
             
             var picturesResult = await _pictureRepository.AddPicturesForPost(pictures);
 
-            return (result != null) && picturesResult ? Ok() 
+            if (!picturesResult) await _postRepository.DeletePost(result.Id);
+
+            return picturesResult ? Ok() 
                 : BadRequest("There was an error while processing Your request.");
         }
     }
