@@ -1,11 +1,11 @@
+using System.IO;
 using System.Threading.Tasks;
-using CloudinaryDotNet.Actions;
+using MyPics.Infrastructure.Persistence;
 
 namespace MyPics.Infrastructure.Interfaces
 {
     public interface ICloudinaryService
     {
-        Task<ImageUploadResult> UploadImageAsync(ImageUploadParams uploadParams);
-        Task<VideoUploadResult> UploadVideoAsync(VideoUploadParams uploadParams);
+        Task<CustomUploadResult> UploadFile(Stream stream, string filename);
     }
 }
