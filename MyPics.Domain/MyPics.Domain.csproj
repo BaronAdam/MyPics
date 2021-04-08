@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="CloudinaryDotNet" Version="1.15.0" />
       <PackageReference Include="EntityFrameworkCore.DataEncryption" Version="2.0.0" />
       <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.2" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.4" />
