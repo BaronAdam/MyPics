@@ -68,7 +68,7 @@ namespace MyPics.Api.Controllers
 
                 if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url))
                 {
-                    await _postRepository.DeletePost(result.Id);
+                    await _postRepository.DeletePost(result.Id, userId);
                     
                     return BadRequest("There was an error while uploading Your photo.");
                 }
@@ -78,10 +78,24 @@ namespace MyPics.Api.Controllers
             
             var picturesResult = await _pictureRepository.AddPicturesForPost(pictures);
 
-            if (!picturesResult) await _postRepository.DeletePost(result.Id);
+            if (!picturesResult) await _postRepository.DeletePost(result.Id, userId);
 
             return picturesResult ? Ok() 
                 : BadRequest("There was an error while processing Your request.");
+        }
+
+        [HttpDelete("{postId}")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+
+            var result = await _postRepository.DeletePost(postId, userId);
+
+            return result ? Ok() : BadRequest("Could not delete the post.");
         }
 
         [HttpPatch]
@@ -91,7 +105,9 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdatePost(PostForUpdateDto postForUpdate)
         {
-            var result = await _postRepository.EditPost(postForUpdate);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+
+            var result = await _postRepository.EditPost(postForUpdate, userId);
 
             return result ? Ok() : BadRequest("There was an error while processing Your request.");
         }

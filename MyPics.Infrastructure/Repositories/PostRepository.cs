@@ -39,11 +39,12 @@ namespace MyPics.Infrastructure.Repositories
             return result;
         }
 
-        public async Task<bool> EditPost(PostForUpdateDto postForUpdate)
+        public async Task<bool> EditPost(PostForUpdateDto postForUpdate, int userId)
         {
             var post = await GetPostById(postForUpdate.Id);
             try
             {
+                if (userId != post.UserId) return false;
                 _mapper.Map(postForUpdate, post);
                 _context.Update(post);
                 return await _context.SaveChangesAsync() > 0;
@@ -55,11 +56,12 @@ namespace MyPics.Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> DeletePost(int postId)
+        public async Task<bool> DeletePost(int postId, int userId)
         {
+            var post = await GetPostById(postId);
             try
             {
-                var post = _context.Posts.FirstOrDefault(x => x.Id == postId);
+                if (userId != post.UserId) return false;
                 var pictures = _context.Pictures.Where(x => x.PostId == postId);
 
                 _context.Posts.Remove(post);
