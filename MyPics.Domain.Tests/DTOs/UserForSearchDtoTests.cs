@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace MyPics.Domain.Tests.DTOs
 {
     [TestFixture]
-    public class UserForSearchTests
+    public class UserForSearchDtoTests
     {
         [Test]
         public void TestAll_ExpectedResult()

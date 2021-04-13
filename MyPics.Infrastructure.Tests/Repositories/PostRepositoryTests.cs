@@ -1,8 +1,10 @@
 ﻿using System.Threading.Tasks;
+using AutoMapper;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
 using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Repositories;
@@ -30,15 +32,24 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 .UseInMemoryDatabase("my_pics")
                 .Options;
             
+            var config = new MapperConfiguration(c =>
+            {
+                c.CreateMap<PostForUpdateDto, Post>();
+            });
+
+            var mapper = config.CreateMapper();
+            
             _context = new MyPicsDbContext(options, configuration.Object);
 
             _context.Posts.Add(new Post
             {
                 Id = 1,
+                UserId = 1
             });
             _context.Posts.Add(new Post
             {
                 Id = 2,
+                UserId = 1
             });
 
             _context.Pictures.Add(new Picture
@@ -49,7 +60,7 @@ namespace MyPics.Infrastructure.Tests.Repositories
             
             _context.SaveChanges();
             
-            _repository = new PostRepository(_context);
+            _repository = new PostRepository(_context, mapper);
         }
         
         [TearDown]
@@ -78,7 +89,7 @@ namespace MyPics.Infrastructure.Tests.Repositories
         [Test]
         public async Task AddPost_Exception_ReturnsNull()
         {
-            _repository = new PostRepository(null);
+            _repository = new PostRepository(null, null);
             
             var result = await _repository.AddPost(new Post());
 
@@ -88,15 +99,23 @@ namespace MyPics.Infrastructure.Tests.Repositories
         [Test]
         public async Task DeletePost_ExistingPostAndPictures_ReturnsTrue()
         {
-            var result = await _repository.DeletePost(1);
+            var result = await _repository.DeletePost(1, 1);
 
             result.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task DeletePost_ExistingPostWrongUser_ReturnsFalse()
+        {
+            var result = await _repository.DeletePost(1, 100);
+
+            result.Should().BeFalse();
         }
 
         [Test]
         public async Task DeletePost_NotExistingPictures_ReturnsTrue()
         {
-            var result = await _repository.DeletePost(2);
+            var result = await _repository.DeletePost(2, 1);
 
             result.Should().BeTrue();
         }
@@ -104,9 +123,67 @@ namespace MyPics.Infrastructure.Tests.Repositories
         [Test]
         public async Task DeletePost_Exception_ReturnsFalse()
         {
-            _repository = new PostRepository(null);
+            _repository = new PostRepository(null, null);
             
-            var result = await _repository.DeletePost(1);
+            var result = await _repository.DeletePost(1, 1);
+
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task EditPost_ExistingPost_ReturnsTrue()
+        {
+            var dto = new PostForUpdateDto
+            {
+                Id = 1,
+                Description = "testDescription"
+            };
+
+            var result = await _repository.EditPost(dto, 1);
+
+            result.Should().BeTrue();
+        }
+        
+        [Test]
+        public async Task EditPost_ExistingPostWrongUser_ReturnsFalse()
+        {
+            var dto = new PostForUpdateDto
+            {
+                Id = 1,
+                Description = "testDescription"
+            };
+
+            var result = await _repository.EditPost(dto, 100);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task EditPost_NotExistingPost_ReturnsFalse()
+        {
+            var dto = new PostForUpdateDto
+            {
+                Id = 1000,
+                Description = "testDescription"
+            };
+
+            var result = await _repository.EditPost(dto, 1);
+
+            result.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task EditPost_Exception_ReturnsFalse()
+        {
+            _repository = new PostRepository(null, null);
+            
+            var dto = new PostForUpdateDto
+            {
+                Id = 1,
+                Description = "testDescription"
+            };
+
+            var result = await _repository.EditPost(dto, 1);
 
             result.Should().BeFalse();
         }
