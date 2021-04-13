@@ -7,7 +7,7 @@ namespace MyPics.Infrastructure.Interfaces
     public interface IPostRepository
     {
         Task<Post> AddPost(Post post);
-        Task<bool> EditPost(PostForUpdateDto post);
-        Task<bool> DeletePost(int postId);
+        Task<bool> EditPost(PostForUpdateDto post, int userId);
+        Task<bool> DeletePost(int postId, int userId);
     }
 }

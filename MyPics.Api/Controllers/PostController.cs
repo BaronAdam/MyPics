@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -49,7 +50,9 @@ namespace MyPics.Api.Controllers
             if (formFiles.Any(file => file == null || file.Length <= 0))
                 return BadRequest("There was an error with the file(s).");
 
+            post.NumberOfPictures = formFiles.Count;
             post.UserId = userId;
+            post.DatePosted = DateTime.UtcNow;
 
             var result = await _postRepository.AddPost(post);
 
@@ -65,7 +68,7 @@ namespace MyPics.Api.Controllers
 
                 if (uploadResult == null || string.IsNullOrEmpty(uploadResult.Url))
                 {
-                    await _postRepository.DeletePost(result.Id);
+                    await _postRepository.DeletePost(result.Id, userId);
                     
                     return BadRequest("There was an error while uploading Your photo.");
                 }
@@ -75,10 +78,38 @@ namespace MyPics.Api.Controllers
             
             var picturesResult = await _pictureRepository.AddPicturesForPost(pictures);
 
-            if (!picturesResult) await _postRepository.DeletePost(result.Id);
+            if (!picturesResult) await _postRepository.DeletePost(result.Id, userId);
 
             return picturesResult ? Ok() 
                 : BadRequest("There was an error while processing Your request.");
+        }
+
+        [HttpDelete("{postId}")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+
+            var result = await _postRepository.DeletePost(postId, userId);
+
+            return result ? Ok() : BadRequest("Could not delete the post.");
+        }
+
+        [HttpPatch]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> UpdatePost(PostForUpdateDto postForUpdate)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+
+            var result = await _postRepository.EditPost(postForUpdate, userId);
+
+            return result ? Ok() : BadRequest("There was an error while processing Your request.");
         }
     }
 }

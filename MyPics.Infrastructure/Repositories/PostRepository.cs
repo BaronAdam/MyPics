@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
@@ -12,10 +13,12 @@ namespace MyPics.Infrastructure.Repositories
     public class PostRepository : IPostRepository
     {
         private readonly MyPicsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public PostRepository(MyPicsDbContext context)
+        public PostRepository(MyPicsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         
         public async Task<Post> AddPost(Post post)
@@ -36,16 +39,29 @@ namespace MyPics.Infrastructure.Repositories
             return result;
         }
 
-        public async Task<bool> EditPost(PostForUpdateDto post)
+        public async Task<bool> EditPost(PostForUpdateDto postForUpdate, int userId)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public async Task<bool> DeletePost(int postId)
-        {
+            var post = await GetPostById(postForUpdate.Id);
             try
             {
-                var post = _context.Posts.FirstOrDefault(x => x.Id == postId);
+                if (userId != post.UserId) return false;
+                _mapper.Map(postForUpdate, post);
+                _context.Update(post);
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+        public async Task<bool> DeletePost(int postId, int userId)
+        {
+            var post = await GetPostById(postId);
+            try
+            {
+                if (userId != post.UserId) return false;
                 var pictures = _context.Pictures.Where(x => x.PostId == postId);
 
                 _context.Posts.Remove(post);

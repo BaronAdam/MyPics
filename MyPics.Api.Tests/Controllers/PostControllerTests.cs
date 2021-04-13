@@ -33,7 +33,7 @@ namespace MyPics.Api.Tests.Controllers
             _postRepository = new Mock<IPostRepository>();
             _pictureRepository = new Mock<IPictureRepository>();
             
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new[] {
                 new Claim(ClaimTypes.NameIdentifier, "123"),
             },"TestAuthentication"));
 
@@ -178,6 +178,50 @@ namespace MyPics.Api.Tests.Controllers
             result.Should().NotBeNull();
             result.Should().BeOfType<BadRequestObjectResult>();
         }
+
+        [Test]
+        public async Task DeletePost_ExistingPost_ReturnsOk()
+        {
+            SetupRepoDeletePost(false);
+
+            var result = await _controller.DeletePost(1);
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<OkResult>();
+        }
+        
+        [Test]
+        public async Task DeletePost_NotExistingPost_ReturnsBadRequest()
+        {
+            SetupRepoDeletePost(true);
+
+            var result = await _controller.DeletePost(1);
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task UpdatePost_ExistingPost_ReturnsOk()
+        {
+            SetupRepoUpdatePost(false);
+
+            var result = await _controller.UpdatePost(new PostForUpdateDto());
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<OkResult>();
+        }
+        
+        [Test]
+        public async Task UpdatePost_NotExistingPost_ReturnsBadRequest()
+        {
+            SetupRepoUpdatePost(true);
+
+            var result = await _controller.UpdatePost(new PostForUpdateDto());
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
         
         private void SetupRepoAddPost(bool shouldReturnNull)
         {
@@ -187,7 +231,13 @@ namespace MyPics.Api.Tests.Controllers
 
         private void SetupRepoDeletePost(bool shouldReturnFalse)
         {
-            _postRepository.Setup(x => x.DeletePost(It.IsAny<int>()))
+            _postRepository.Setup(x => x.DeletePost(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(!shouldReturnFalse);
+        }
+        
+        private void SetupRepoUpdatePost(bool shouldReturnFalse)
+        {
+            _postRepository.Setup(x => x.EditPost(It.IsAny<PostForUpdateDto>(), It.IsAny<int>()))
                 .ReturnsAsync(!shouldReturnFalse);
         }
         
