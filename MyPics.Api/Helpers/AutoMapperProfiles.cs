@@ -13,6 +13,7 @@ namespace MyPics.Api.Helpers
             CreateMap<User, UserForFollowDto>();
 
             CreateMap<PostForAddDto, Post>().ForSourceMember(x => x.Files, opt => opt.DoNotValidate());
+            CreateMap<PostForUpdateDto, Post>();
         }
     }
 }
