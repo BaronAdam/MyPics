@@ -2,8 +2,8 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\adamo\.nuget\packages\mailkit\2.11.0\lib\net50\MailKit.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\adamo\AppData\Local\JetBrains\Rider2020.3\resharper-host\temp\Rider\vAny\CoverageData\_MyPics.2103707504\Snapshot\snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=295512f0_002D91ed_002D409e_002Dbc0b_002Dd29f4904a9c4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="DeletePost_ExistingPost_ReturnsOk #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=295512f0_002D91ed_002D409e_002Dbc0b_002Dd29f4904a9c4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="DeletePost_ExistingPost_ReturnsOk #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests.DeletePost_ExistingPost_ReturnsOk&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests.DeletePost_NotExistingPost_ReturnsBadRequest&lt;/TestId&gt;&#xD;

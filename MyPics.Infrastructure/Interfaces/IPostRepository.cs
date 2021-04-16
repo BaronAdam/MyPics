@@ -9,5 +9,6 @@ namespace MyPics.Infrastructure.Interfaces
         Task<Post> AddPost(Post post);
         Task<bool> EditPost(PostForUpdateDto post, int userId);
         Task<bool> DeletePost(int postId, int userId);
+        Task<PostDto> GetPostForUser(int userId, int postId);
     }
 }
