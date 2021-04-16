@@ -20,6 +20,7 @@ namespace MyPics.Infrastructure.Persistence.DatabaseSeed
         {
             SeedUsers();
             SeedFollows();
+            SeedPosts();
         }
         
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
@@ -37,15 +38,20 @@ namespace MyPics.Infrastructure.Persistence.DatabaseSeed
             {
                 var userData = File
                     .ReadAllText("../MyPics.Infrastructure/Persistence/DatabaseSeed/UserData.json");
-                var users = JsonSerializer.Deserialize<List<User>>(userData);
+                var users = JsonSerializer.Deserialize<IEnumerable<User>>(userData);
+                var i = 0;
                 foreach (var user in users)
                 {
                     CreatePasswordHash("password", out var passwordHash, out var passwordSalt);
 
+                    if (i % 2 == 0) user.IsPrivate = true;
+                    
                     user.PasswordHash = passwordHash;
                     user.PasswordSalt = passwordSalt;
                     user.IsConfirmed = true;
                     _context.Users.Add(user);
+
+                    i++;
                 }
                 _context.SaveChanges();
             }
@@ -66,6 +72,27 @@ namespace MyPics.Infrastructure.Persistence.DatabaseSeed
                             FollowingId = j
                         };
                         _context.Follows.Add(follow);
+                    }
+                }
+                _context.SaveChanges();
+            }
+        }
+        
+        private void SeedPosts()
+        {
+            if (!_context.Posts.Any())
+            {
+                for (var i = 1; i <= 5; i++)
+                {
+                    for (var j = 1; j <= 5; j++)
+                    {
+                        if (i == j) continue;
+                        var post = new Post
+                        {
+                            UserId = i,
+                            Description = "lorem ipsum"
+                        };
+                        _context.Posts.Add(post);
                     }
                 }
                 _context.SaveChanges();

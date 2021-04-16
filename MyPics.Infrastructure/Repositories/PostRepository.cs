@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
@@ -73,6 +74,23 @@ namespace MyPics.Infrastructure.Repositories
             {
                 Console.WriteLine(e);
                 return false;
+            }
+        }
+
+        public async Task<PostDto> GetPostForUser(int userId, int postId)
+        {
+            try
+            {
+                return await _context.Posts.Where(x => x.Id == postId && x.UserId == userId)
+                    .Include(x => x.User)
+                    .AsNoTracking()
+                    .ProjectTo<PostDto>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
             }
         }
 

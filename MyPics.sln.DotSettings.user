@@ -2,26 +2,19 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\adamo\.nuget\packages\mailkit\2.11.0\lib\net50\MailKit.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\adamo\AppData\Local\JetBrains\Rider2020.3\resharper-host\temp\Rider\vAny\CoverageData\_MyPics.2103707504\Snapshot\snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=295512f0_002D91ed_002D409e_002Dbc0b_002Dd29f4904a9c4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="DeletePost_ExistingPost_ReturnsOk #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests.DeletePost_ExistingPost_ReturnsOk&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests.DeletePost_NotExistingPost_ReturnsBadRequest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests.UpdatePost_ExistingPost_ReturnsOk&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests.UpdatePost_NotExistingPost_ReturnsBadRequest&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=db26560f_002Dd165_002D43b3_002D9935_002Dfc06572b7031/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="DeletePost_ExistingPost_ReturnsOk" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests.DeletePost_ExistingPost_ReturnsOk&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\adamo\AppData\Local\JetBrains\Rider2021.1\resharper-host\temp\Rider\vAny\CoverageData\_MyPics.2103707504\Snapshot\snapshot.utdcvr</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6ed98b67_002Dfb62_002D4690_002Dba5e_002Dba0a36d78103/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f455821b_002D87d6_002D4ae7_002Da6c9_002D550a2520d1b2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PostControllerTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::5BCA8F9C-FC7A-4B37-903B-F5FD50EABCD0::net5.0::MyPics.Api.Tests.Controllers.PostControllerTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
