@@ -35,6 +35,8 @@ namespace MyPics.Infrastructure.Tests.Repositories
             var config = new MapperConfiguration(c =>
             {
                 c.CreateMap<PostForUpdateDto, Post>();
+                c.CreateMap<Post, PostDto>();
+                c.CreateMap<User, UserForPostDto>();
             });
 
             var mapper = config.CreateMapper();
@@ -56,6 +58,11 @@ namespace MyPics.Infrastructure.Tests.Repositories
             {
                 Id = 1,
                 PostId = 1
+            });
+
+            _context.Users.Add(new User
+            {
+                Id = 1
             });
             
             _context.SaveChanges();
@@ -186,6 +193,42 @@ namespace MyPics.Infrastructure.Tests.Repositories
             var result = await _repository.EditPost(dto, 1);
 
             result.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task GetPostForUser_ExistingPost_ReturnsPostDto()
+        {
+            var result = await _repository.GetPostForUser(1, 1);
+
+            result.Should().NotBeNull();
+            result.User.Id.Should().Be(1);
+            result.Id.Should().Be(1);
+        }
+        
+        [Test]
+        public async Task GetPostForUser_NotExistingPost_ReturnsNull()
+        {
+            var result = await _repository.GetPostForUser(1, 100);
+
+            result.Should().BeNull();
+        }
+        
+        [Test]
+        public async Task GetPostForUser_NotExistingUser_ReturnsNull()
+        {
+            var result = await _repository.GetPostForUser(1000, 1);
+
+            result.Should().BeNull();
+        }
+        
+        [Test]
+        public async Task GetPostForUser_Exception_ReturnsNull()
+        {
+            _repository = new PostRepository(null, null);
+            
+            var result = await _repository.GetPostForUser(1000, 1);
+
+            result.Should().BeNull();
         }
     }
 }
