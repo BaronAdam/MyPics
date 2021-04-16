@@ -126,6 +126,8 @@ namespace MyPics.Api.Controllers
         public async Task<IActionResult> GetSinglePost(int postId, int userId)
         {
             var user = await _userRepository.GetUserById(userId);
+
+            if (user == null) return BadRequest("User not found.");
             
             var requestingUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             
@@ -133,16 +135,14 @@ namespace MyPics.Api.Controllers
             {
                 var follow = await _followRepository.GetFollowStatus(requestingUserId, userId);
 
-                if (follow == null) return BadRequest();
-
-                if (!follow.IsAlreadyInFollows) return BadRequest($"You're not following {user.DisplayName}");
+                if (!follow.IsAlreadyInFollows) return BadRequest($"You're not following {user.DisplayName}.");
 
                 if (!follow.IsFollowAccepted) return BadRequest($"{user.DisplayName} have not accepted Your follow.");
             }
 
             var result = await _postRepository.GetPostForUser(userId, postId);
 
-            return result != null ? Ok(result) : BadRequest("Could not find specified post");
+            return result != null ? Ok(result) : BadRequest("Could not find specified post.");
         }
     }
 }
