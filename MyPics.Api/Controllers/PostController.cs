@@ -20,14 +20,19 @@ namespace MyPics.Api.Controllers
     {
         private readonly IPostRepository _postRepository;
         private readonly IPictureRepository _pictureRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IFollowRepository _followRepository;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
 
         public PostController(IPostRepository postRepository, IPictureRepository pictureRepository, 
-            ICloudinaryService cloudinaryService, IMapper mapper)
+            IUserRepository userRepository, IFollowRepository followRepository, ICloudinaryService cloudinaryService,
+            IMapper mapper)
         {
             _postRepository = postRepository;
             _pictureRepository = pictureRepository;
+            _userRepository = userRepository;
+            _followRepository = followRepository;
             _cloudinaryService = cloudinaryService;
             _mapper = mapper;
         }
@@ -39,7 +44,7 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> AddPost([FromForm] PostForAddDto postForAddDto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
             var post = _mapper.Map<Post>(postForAddDto);
 
@@ -91,7 +96,7 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeletePost(int postId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
             var result = await _postRepository.DeletePost(postId, userId);
 
@@ -105,11 +110,39 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdatePost(PostForUpdateDto postForUpdate)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
             var result = await _postRepository.EditPost(postForUpdate, userId);
 
             return result ? Ok() : BadRequest("There was an error while processing Your request.");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{postId}/user/{userId}")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetSinglePost(int postId, int userId)
+        {
+            var user = await _userRepository.GetUserById(userId);
+            
+            var requestingUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            
+            if (user.IsPrivate && userId != requestingUserId)
+            {
+                var follow = await _followRepository.GetFollowStatus(requestingUserId, userId);
+
+                if (follow == null) return BadRequest();
+
+                if (!follow.IsAlreadyInFollows) return BadRequest($"You're not following {user.DisplayName}");
+
+                if (!follow.IsFollowAccepted) return BadRequest($"{user.DisplayName} have not accepted Your follow.");
+            }
+
+            var result = await _postRepository.GetPostForUser(userId, postId);
+
+            return result != null ? Ok(result) : BadRequest("Could not find specified post");
         }
     }
 }
