@@ -23,6 +23,8 @@ namespace MyPics.Api.Tests.Controllers
     {
         private Mock<IPostRepository> _postRepository;
         private Mock<IPictureRepository> _pictureRepository;
+        private Mock<IUserRepository> _userRepository;
+        private Mock<IFollowRepository> _followRepository;
         private PostController _controller;
         private Mock<ICloudinaryService> _cloudinaryService;
         private Mock<IFormFile> _formFile;
@@ -32,6 +34,8 @@ namespace MyPics.Api.Tests.Controllers
         {
             _postRepository = new Mock<IPostRepository>();
             _pictureRepository = new Mock<IPictureRepository>();
+            _userRepository = new Mock<IUserRepository>();
+            _followRepository = new Mock<IFollowRepository>();
             
             var user = new ClaimsPrincipal(new ClaimsIdentity(new[] {
                 new Claim(ClaimTypes.NameIdentifier, "123"),
@@ -47,7 +51,7 @@ namespace MyPics.Api.Tests.Controllers
             _cloudinaryService = new Mock<ICloudinaryService>();
 
             _controller = new PostController(_postRepository.Object, _pictureRepository.Object, 
-                _cloudinaryService.Object, mapper)
+                _userRepository.Object, _followRepository.Object,_cloudinaryService.Object, mapper)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -222,6 +226,78 @@ namespace MyPics.Api.Tests.Controllers
             result.Should().NotBeNull();
             result.Should().BeOfType<BadRequestObjectResult>();
         }
+
+        [Test]
+        public async Task GetSinglePost_ExistingPostPublicProfileAcceptedFollow_ReturnsOk()
+        {
+            SetupRepoGetUserById(false, false);
+            SetupRepoGetFollowStatus(true, true);
+            SetupRepoGetPostForUser(false);
+
+            var result = await _controller.GetSinglePost(1, 1);
+
+            result.Should().BeOfType<OkObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetSinglePost_ExistingPostPrivateProfileAcceptedFollow_ReturnsOk()
+        {
+            SetupRepoGetUserById(false, true);
+            SetupRepoGetFollowStatus(true, true);
+            SetupRepoGetPostForUser(false);
+
+            var result = await _controller.GetSinglePost(1, 1);
+
+            result.Should().BeOfType<OkObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetSinglePost_ExistingPostPrivateProfileNotAcceptedFollow_ReturnsBadRequest()
+        {
+            SetupRepoGetUserById(false, true);
+            SetupRepoGetFollowStatus(true, false);
+            SetupRepoGetPostForUser(false);
+
+            var result = await _controller.GetSinglePost(1, 1);
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetSinglePost_ExistingPostPrivateProfileNotFollowed_ReturnsBadRequest()
+        {
+            SetupRepoGetUserById(false, true);
+            SetupRepoGetFollowStatus(false, false);
+            SetupRepoGetPostForUser(false);
+
+            var result = await _controller.GetSinglePost(1, 1);
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetSinglePost_NotExistingUser_ReturnsBadRequest()
+        {
+            SetupRepoGetUserById(true, false);
+            SetupRepoGetFollowStatus(true, true);
+            SetupRepoGetPostForUser(false);
+
+            var result = await _controller.GetSinglePost(1, 1);
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetSinglePost_NotExistingPost_ReturnsBadRequest()
+        {
+            SetupRepoGetUserById(false, false);
+            SetupRepoGetFollowStatus(true, true);
+            SetupRepoGetPostForUser(true);
+
+            var result = await _controller.GetSinglePost(1, 1);
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
         
         private void SetupRepoAddPost(bool shouldReturnNull)
         {
@@ -245,6 +321,24 @@ namespace MyPics.Api.Tests.Controllers
         {
             _pictureRepository.Setup(x => x.AddPicturesForPost(It.IsAny<List<Picture>>()))
                 .ReturnsAsync(!shouldReturnFalse);
+        }
+
+        private void SetupRepoGetUserById(bool shouldReturnNull, bool shouldBePrivate)
+        {
+            _userRepository.Setup(x => x.GetUserById(It.IsAny<int>()))
+                .ReturnsAsync(!shouldReturnNull ? new User {IsPrivate = shouldBePrivate} : null);
+        }
+
+        private void SetupRepoGetFollowStatus(bool isExisting, bool isAccepted)
+        {
+            _followRepository.Setup(x => x.GetFollowStatus(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(() => new FollowStatusDto(isExisting, isAccepted));
+        }
+
+        private void SetupRepoGetPostForUser(bool shouldReturnNull)
+        {
+            _postRepository.Setup(x => x.GetPostForUser(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(!shouldReturnNull ? new PostDto() : null);
         }
         
         private void SetupServiceUploadFile(bool shouldReturnNull)
