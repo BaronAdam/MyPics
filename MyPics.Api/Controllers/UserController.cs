@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPics.Domain.DTOs;
 using MyPics.Infrastructure.Interfaces;
+using static System.Int32;
 
 namespace MyPics.Api.Controllers
 {
@@ -49,7 +50,8 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UploadProfilePicture([FromForm] ProfilePictureDto pictureDto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var file = pictureDto.File;
 

@@ -9,6 +9,7 @@ using MyPics.Domain.DTOs;
 using MyPics.Infrastructure.Helpers;
 using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Interfaces;
+using static System.Int32;
 
 namespace MyPics.Api.Controllers
 {
@@ -31,7 +32,8 @@ namespace MyPics.Api.Controllers
         [HttpGet("follows")]
         public async Task<IActionResult> GetFollowsForUser([FromQuery] UserParameters parameters)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var users = await _followRepository.GetUserFollows(userId, parameters);
 
@@ -49,7 +51,8 @@ namespace MyPics.Api.Controllers
         [HttpGet("followers")]
         public async Task<IActionResult> GetFollowersForUser([FromQuery] UserParameters parameters)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var users = await _followRepository.GetUserFollowers(userId, parameters);
 
@@ -67,7 +70,8 @@ namespace MyPics.Api.Controllers
         [HttpGet("follows/{username}")]
         public async Task<IActionResult> FindUserInFollows(string username)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var user = await _followRepository.FindUserInFollows(userId, username);
 
@@ -83,7 +87,8 @@ namespace MyPics.Api.Controllers
         [HttpGet("followers/{username}")]
         public async Task<IActionResult> FindUserInFollowers(string username)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var user = await _followRepository.FindUserInFollowers(userId, username);
 
@@ -99,7 +104,8 @@ namespace MyPics.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> FollowUser(int followeeId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _followRepository.FollowUser(userId, followeeId);
 
@@ -112,7 +118,8 @@ namespace MyPics.Api.Controllers
         [HttpGet("status/{followeeId}")]
         public async Task<IActionResult> GetFollowStatus(int followeeId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _followRepository.GetFollowStatus(userId, followeeId);
 
@@ -126,7 +133,8 @@ namespace MyPics.Api.Controllers
         [HttpDelete]
         public async Task<IActionResult> UnFollowUser(int followeeId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _followRepository.UnFollowUser(userId, followeeId);
 
@@ -140,7 +148,8 @@ namespace MyPics.Api.Controllers
         [HttpPatch]
         public async Task<IActionResult> AcceptFollowRequest(int followerId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _followRepository.AcceptFollow(userId, followerId);
             
@@ -154,7 +163,8 @@ namespace MyPics.Api.Controllers
         [HttpDelete("reject")]
         public async Task<IActionResult> RejectFollowRequest(int followerId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _followRepository.RejectFollow(userId, followerId);
             
@@ -168,7 +178,8 @@ namespace MyPics.Api.Controllers
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteFollower(int followerId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _followRepository.RemoveFollower(userId, followerId);
             
@@ -182,7 +193,8 @@ namespace MyPics.Api.Controllers
         [HttpGet("followers/pending")]
         public async Task<IActionResult> GetNotAcceptedFollowers([FromQuery] UserParameters userParameters)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _followRepository.GetNotAcceptedFollows(userParameters, userId);
             
