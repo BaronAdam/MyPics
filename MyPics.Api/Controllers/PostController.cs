@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
 using MyPics.Infrastructure.Interfaces;
+using static System.Int32;
 
 namespace MyPics.Api.Controllers
 {
@@ -44,7 +45,8 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> AddPost([FromForm] PostForAddDto postForAddDto)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var post = _mapper.Map<Post>(postForAddDto);
 
@@ -96,7 +98,8 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeletePost(int postId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _postRepository.DeletePost(postId, userId);
 
@@ -110,7 +113,8 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> UpdatePost(PostForUpdateDto postForUpdate)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
 
             var result = await _postRepository.EditPost(postForUpdate, userId);
 
@@ -129,7 +133,8 @@ namespace MyPics.Api.Controllers
 
             if (user == null) return BadRequest("User not found.");
             
-            var requestingUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var requestingUserId))
+                return Unauthorized();
             
             if (user.IsPrivate && userId != requestingUserId)
             {
