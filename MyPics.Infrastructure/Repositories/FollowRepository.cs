@@ -231,6 +231,35 @@ namespace MyPics.Infrastructure.Repositories
             }
         }
 
+        public async Task<IEnumerable<int>> GetAllAcceptedFollowIds(int userId)
+        {
+            try
+            {
+                var notAcceptedFollows = await _context.Follows
+                    .Where(x => x.UserId == userId && !x.IsAccepted)
+                    .Select(x => x.Following)
+                    .Where(x => x.IsPrivate)
+                    .AsNoTracking()
+                    .Select(x => x.Id)
+                    .ToListAsync();
+
+                var follows = await _context.Follows
+                    .Where(x => x.UserId == userId)
+                    .Select(x => x.Following)
+                    .OrderBy(x => x.Id)
+                    .AsNoTracking()
+                    .Select(x => x.Id)
+                    .ToListAsync();
+
+                return follows.Except(notAcceptedFollows);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
+
         private async Task<Follow> GetFollow(int userId, int followeeId)
         {
             try

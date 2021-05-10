@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MyPics.Domain.DTOs;
 using NUnit.Framework;
@@ -17,7 +18,8 @@ namespace MyPics.Domain.Tests.DTOs
                 Description = "testDescription",
                 DatePosted = new DateTime(2021, 01, 01),
                 NumberOfPictures = 1,
-                User = new UserForPostDto()
+                User = new UserForPostDto(),
+                Pictures = new List<PictureForPostDto>()
             };
 
             entity.Should().NotBeNull();
@@ -26,6 +28,7 @@ namespace MyPics.Domain.Tests.DTOs
             entity.DatePosted.Should().Be(new DateTime(2021, 01, 01));
             entity.NumberOfPictures.Should().Be(1);
             entity.User.Should().BeEquivalentTo(new UserForPostDto());
+            entity.Pictures.Should().BeEmpty();
         }
     }
 }

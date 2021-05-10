@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
+using MyPics.Infrastructure.Helpers;
+using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Persistence;
 using MyPics.Infrastructure.Repositories;
 using NUnit.Framework;
@@ -37,6 +41,7 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 c.CreateMap<PostForUpdateDto, Post>();
                 c.CreateMap<Post, PostDto>();
                 c.CreateMap<User, UserForPostDto>();
+                c.CreateMap<Picture, PictureForPostDto>();
             });
 
             var mapper = config.CreateMapper();
@@ -46,18 +51,39 @@ namespace MyPics.Infrastructure.Tests.Repositories
             _context.Posts.Add(new Post
             {
                 Id = 1,
-                UserId = 1
+                UserId = 1,
+                DatePosted = new DateTime(2021, 1, 1)
             });
             _context.Posts.Add(new Post
             {
                 Id = 2,
-                UserId = 1
+                UserId = 1,
+                DatePosted = new DateTime(2021, 1, 1)
             });
-
+            
+            _context.Posts.Add(new Post
+            {
+                Id = 3,
+                UserId = 2,
+                DatePosted = new DateTime(2021, 1, 1)
+            });
+            
             _context.Pictures.Add(new Picture
             {
                 Id = 1,
                 PostId = 1
+            });
+            
+            _context.Pictures.Add(new Picture
+            {
+                Id = 2,
+                PostId = 2
+            });
+
+            _context.Pictures.Add(new Picture
+            {
+                Id = 3,
+                PostId = 3
             });
 
             _context.Users.Add(new User
@@ -65,6 +91,11 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 Id = 1
             });
             
+            _context.Users.Add(new User
+            {
+                Id = 2
+            });
+
             _context.SaveChanges();
             
             _repository = new PostRepository(_context, mapper);
@@ -228,6 +259,88 @@ namespace MyPics.Infrastructure.Tests.Repositories
             
             var result = await _repository.GetPostForUser(1000, 1);
 
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetPostsForUser_ExistingPosts_ReturnsPagedList()
+        {
+            var result = await _repository.GetPostsForUser(1, new PostParameters
+            {
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+            result.Should().NotBeNullOrEmpty();
+            result.Should().BeOfType<PagedList<PostDto>>();
+            result.CurrentPage.Should().Be(1);
+            result.PageSize.Should().Be(10);
+        }
+        
+        [Test]
+        public async Task GetPostsForUser_NotExistingPosts_ReturnsPagedList()
+        {
+            var result = await _repository.GetPostsForUser(100, new PostParameters
+            {
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+            result.Should().BeEmpty();
+        }
+        
+        [Test]
+        public async Task GetPostsForUser_Exception_ReturnsNull()
+        {
+            _repository = new PostRepository(null, null);
+            
+            var result = await _repository.GetPostsForUser(1, new PostParameters
+            {
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetPostsForFeed_ExistingPosts_ReturnsPagedList()
+        {
+            var result = await _repository.GetPostsForFeed(new List<int> {1, 2}, new PostParameters
+            {
+                PageNumber = 1,
+                PageSize = 10
+            });
+            
+            result.Should().NotBeNullOrEmpty();
+            result.Should().BeOfType<PagedList<PostDto>>();
+            result.CurrentPage.Should().Be(1);
+            result.PageSize.Should().Be(10);
+        }
+
+        [Test]
+        public async Task GetPostsForFeed_NotExistingPosts_ReturnsPagedList()
+        {
+            var result = await _repository.GetPostsForFeed(new List<int> {100, 200}, new PostParameters
+            {
+                PageNumber = 1,
+                PageSize = 10
+            });
+            
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task GetPostsForFeed_Exception_ReturnsNull()
+        {
+            _repository = new PostRepository(null, null);
+            
+            var result = await _repository.GetPostsForFeed(new List<int> {1, 2}, new PostParameters
+            {
+                PageNumber = 1,
+                PageSize = 10
+            });
+            
             result.Should().BeNull();
         }
     }

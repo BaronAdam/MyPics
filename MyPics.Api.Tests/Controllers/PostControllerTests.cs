@@ -12,6 +12,8 @@ using Moq;
 using MyPics.Api.Controllers;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
+using MyPics.Infrastructure.Helpers;
+using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Interfaces;
 using MyPics.Infrastructure.Persistence;
 using NUnit.Framework;
@@ -28,6 +30,7 @@ namespace MyPics.Api.Tests.Controllers
         private PostController _controller;
         private Mock<ICloudinaryService> _cloudinaryService;
         private Mock<IFormFile> _formFile;
+        private IMapper _mapper;
         
         [SetUp]
         public void Setup()
@@ -46,12 +49,12 @@ namespace MyPics.Api.Tests.Controllers
                 c.CreateMap<PostForAddDto, Post>();
             });
 
-            var mapper = config.CreateMapper();
+            _mapper = config.CreateMapper();
 
             _cloudinaryService = new Mock<ICloudinaryService>();
 
             _controller = new PostController(_postRepository.Object, _pictureRepository.Object, 
-                _userRepository.Object, _followRepository.Object,_cloudinaryService.Object, mapper)
+                _userRepository.Object, _followRepository.Object,_cloudinaryService.Object, _mapper)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -298,6 +301,111 @@ namespace MyPics.Api.Tests.Controllers
 
             result.Should().BeOfType<BadRequestObjectResult>();
         }
+
+        [Test]
+        public async Task GetPostsForUser_ExistingPostsPublicProfileAcceptedFollow_ReturnsOk()
+        {
+            SetupRepoGetUserById(false, false);
+            SetupRepoGetFollowStatus(true, true);
+            SetupRepoGetPostsForUser(false);
+
+            var result = await _controller.GetPostsForUser(1, new PostParameters());
+
+            result.Should().BeOfType<OkObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetPostsForUser_ExistingPostsPrivateProfileAcceptedFollow_ReturnsOk()
+        {
+            SetupRepoGetUserById(false, true);
+            SetupRepoGetFollowStatus(true, true);
+            SetupRepoGetPostsForUser(false);
+
+            var result = await _controller.GetPostsForUser(1, new PostParameters());
+
+            result.Should().BeOfType<OkObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetPostsForUser_ExistingPostsPrivateProfileNotAcceptedFollow_ReturnsBadRequest()
+        {
+            SetupRepoGetUserById(false, true);
+            SetupRepoGetFollowStatus(true, false);
+            SetupRepoGetPostsForUser(false);
+
+            var result = await _controller.GetPostsForUser(1, new PostParameters());
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetPostsForUser_ExistingPostsPrivateProfileNotFollowed_ReturnsBadRequest()
+        {
+            SetupRepoGetUserById(false, true);
+            SetupRepoGetFollowStatus(false, false);
+            SetupRepoGetPostsForUser(false);
+
+            var result = await _controller.GetPostsForUser(1, new PostParameters());
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetPostsForUser_NotExistingUser_ReturnsBadRequest()
+        {
+            SetupRepoGetUserById(true, false);
+            SetupRepoGetFollowStatus(true, true);
+            SetupRepoGetPostsForUser(false);
+
+            var result = await _controller.GetPostsForUser(1, new PostParameters());
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetPostsForUser_NotExistingPost_ReturnsInternalServerError()
+        {
+            SetupRepoGetUserById(false, false);
+            SetupRepoGetFollowStatus(true, true);
+            SetupRepoGetPostsForUser(true);
+
+            var result = await _controller.GetPostsForUser(1, new PostParameters());
+
+            result.Should().BeOfType<StatusCodeResult>();
+        }
+
+        [Test]
+        public async Task GetPostsForFeed_ExistingPosts_ReturnsOk()
+        {
+            SetupRepoGetAllAcceptedFollowIds(false);
+            SetupRepoGetPostsForFeed(false);
+
+            var result = await _controller.GetPostsForFeed(new PostParameters());
+
+            result.Should().BeOfType<OkObjectResult>();
+        }
+        
+        [Test]
+        public async Task GetPostsForFeed_ExceptionFollows_ReturnsInternalServerError()
+        {
+            SetupRepoGetAllAcceptedFollowIds(true);
+            SetupRepoGetPostsForFeed(false);
+
+            var result = await _controller.GetPostsForFeed(new PostParameters());
+            
+            result.Should().BeOfType<StatusCodeResult>();
+        }
+        
+        [Test]
+        public async Task GetPostsForFeed_ExceptionPosts_ReturnsInternalServerError()
+        {
+            SetupRepoGetAllAcceptedFollowIds(false);
+            SetupRepoGetPostsForFeed(true);
+
+            var result = await _controller.GetPostsForFeed(new PostParameters());
+            
+            result.Should().BeOfType<StatusCodeResult>();
+        }
         
         private void SetupRepoAddPost(bool shouldReturnNull)
         {
@@ -334,6 +442,12 @@ namespace MyPics.Api.Tests.Controllers
             _followRepository.Setup(x => x.GetFollowStatus(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(() => new FollowStatusDto(isExisting, isAccepted));
         }
+        
+        private void SetupRepoGetAllAcceptedFollowIds(bool shouldReturnNull)
+        {
+            _followRepository.Setup(x => x.GetAllAcceptedFollowIds(It.IsAny<int>()))
+                .ReturnsAsync(() => shouldReturnNull ? null : new List<int>());
+        }
 
         private void SetupRepoGetPostForUser(bool shouldReturnNull)
         {
@@ -341,6 +455,32 @@ namespace MyPics.Api.Tests.Controllers
                 .ReturnsAsync(!shouldReturnNull ? new PostDto() : null);
         }
         
+        private void SetupRepoGetPostsForUser(bool shouldReturnNull)
+        {
+            var list = new List<PostDto>();
+
+            for (var i = 0; i < 10; i++)
+            {
+                list.Add(new PostDto {Id = 1});
+            }
+
+            _postRepository.Setup(x => x.GetPostsForUser(It.IsAny<int>(), It.IsAny<PostParameters>()))
+                .ReturnsAsync(!shouldReturnNull ? new PagedList<PostDto>(list, 1, 1, 1): null);
+        }
+        
+        private void SetupRepoGetPostsForFeed(bool shouldReturnNull)
+        {
+            var list = new List<PostDto>();
+
+            for (var i = 0; i < 10; i++)
+            {
+                list.Add(new PostDto {Id = 1});
+            }
+
+            _postRepository.Setup(x => x.GetPostsForFeed(It.IsAny<List<int>>(), It.IsAny<PostParameters>()))
+                .ReturnsAsync(!shouldReturnNull ? new PagedList<PostDto>(list, 1, 1, 1): null);
+        }
+
         private void SetupServiceUploadFile(bool shouldReturnNull)
         {
             var uploadResult = new ImageUploadResult

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -80,6 +81,7 @@ namespace MyPics.Infrastructure.Persistence.DatabaseSeed
         
         private void SeedPosts()
         {
+            var rnd = new Random();
             if (!_context.Posts.Any())
             {
                 for (var i = 1; i <= 5; i++)
@@ -90,7 +92,8 @@ namespace MyPics.Infrastructure.Persistence.DatabaseSeed
                         var post = new Post
                         {
                             UserId = i,
-                            Description = "lorem ipsum"
+                            Description = "lorem ipsum",
+                            DatePosted = DateTime.UtcNow.AddDays(-rnd.Next(0, 10))
                         };
                         _context.Posts.Add(post);
                     }

@@ -454,5 +454,31 @@ namespace MyPics.Infrastructure.Tests.Repositories
 
             result.Should().BeNull();
         }
+
+        [Test]
+        public async Task GetAllAcceptedFollowIds_ExistingFollows_ReturnsList()
+        {
+            var result = await _repository.GetAllAcceptedFollowIds(1);
+
+            result.Should().NotBeNullOrEmpty();
+        }
+        
+        [Test]
+        public async Task GetAllAcceptedFollowIds_NotExistingFollows_ReturnsEmptyList()
+        {
+            var result = await _repository.GetAllAcceptedFollowIds(100);
+
+            result.Should().BeEmpty();
+        }
+        
+        [Test]
+        public async Task GetAllAcceptedFollowIds_Exception_ReturnsNull()
+        {
+            _repository = new FollowRepository(null, null);
+            
+            var result = await _repository.GetAllAcceptedFollowIds(1);
+
+            result.Should().BeNull();
+        }
     }
 }

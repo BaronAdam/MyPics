@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -6,6 +8,8 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
+using MyPics.Infrastructure.Helpers;
+using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Interfaces;
 using MyPics.Infrastructure.Persistence;
 
@@ -83,9 +87,52 @@ namespace MyPics.Infrastructure.Repositories
             {
                 return await _context.Posts.Where(x => x.Id == postId && x.UserId == userId)
                     .Include(x => x.User)
+                    .Include(x => x.Pictures)
                     .AsNoTracking()
                     .ProjectTo<PostDto>(_mapper.ConfigurationProvider)
                     .FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
+
+        public async Task<PagedList<PostDto>> GetPostsForUser(int userId, PostParameters parameters)
+        {
+            try
+            {
+                var posts = _context.Posts
+                    .Where(x => x.UserId == userId)
+                    .OrderByDescending(x => x.DatePosted)
+                    .Include(x => x.User)
+                    .Include(x => x.Pictures)
+                    .ProjectTo<PostDto>(_mapper.ConfigurationProvider)
+                    .AsNoTracking();
+
+                return await PagedList<PostDto>.CreateAsync(posts, parameters.PageNumber, parameters.PageSize);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
+
+        public async Task<PagedList<PostDto>> GetPostsForFeed(List<int> userIds, PostParameters parameters)
+        {
+            try
+            {
+                var posts = _context.Posts
+                    .Where(x => userIds.Contains(x.UserId))
+                    .Include(x => x.User)
+                    .Include(x => x.Pictures)
+                    .OrderByDescending(x => x.DatePosted)
+                    .ProjectTo<PostDto>(_mapper.ConfigurationProvider)
+                    .AsNoTracking();
+                
+                return await PagedList<PostDto>.CreateAsync(posts, parameters.PageNumber, parameters.PageSize);
             }
             catch (Exception e)
             {

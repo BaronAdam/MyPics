@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
+using MyPics.Infrastructure.Helpers.PaginationParameters;
 using MyPics.Infrastructure.Interfaces;
 using static System.Int32;
 
@@ -123,7 +124,7 @@ namespace MyPics.Api.Controllers
 
         [AllowAnonymous]
         [HttpGet("{postId}/user/{userId}")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PostDto), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
@@ -133,7 +134,7 @@ namespace MyPics.Api.Controllers
 
             if (user == null) return BadRequest("User not found.");
             
-            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var requestingUserId))
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var requestingUserId) && user.IsPrivate)
                 return Unauthorized();
             
             if (user.IsPrivate && userId != requestingUserId)
@@ -148,6 +149,53 @@ namespace MyPics.Api.Controllers
             var result = await _postRepository.GetPostForUser(userId, postId);
 
             return result != null ? Ok(result) : BadRequest("Could not find specified post.");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("user/{userId}")]
+        [ProducesResponseType(typeof(PostDto), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetPostsForUser(int userId, [FromQuery] PostParameters parameters)
+        {
+            var user = await _userRepository.GetUserById(userId);
+
+            if (user == null) return BadRequest("User not found.");
+            
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var requestingUserId) && user.IsPrivate)
+                return Unauthorized();
+            
+            if (user.IsPrivate && userId != requestingUserId)
+            {
+                var follow = await _followRepository.GetFollowStatus(requestingUserId, userId);
+
+                if (!follow.IsAlreadyInFollows) return BadRequest($"You're not following {user.DisplayName}.");
+
+                if (!follow.IsFollowAccepted) return BadRequest($"{user.DisplayName} have not accepted Your follow.");
+            }
+
+            var result = await _postRepository.GetPostsForUser(userId, parameters);
+            
+            return result != null ? Ok(result) : StatusCode((int)HttpStatusCode.InternalServerError);
+        }
+        
+        [HttpGet("feed")]
+        [ProducesResponseType(typeof(PostDto), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetPostsForFeed([FromQuery] PostParameters parameters)
+        {
+            if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                return Unauthorized();
+
+            var ids = await _followRepository.GetAllAcceptedFollowIds(userId);
+            
+            if (ids == null) return StatusCode((int)HttpStatusCode.InternalServerError);
+
+            var posts = await _postRepository.GetPostsForFeed(ids.ToList(), parameters);
+            
+            return posts != null ? Ok(posts) : StatusCode((int)HttpStatusCode.InternalServerError);
         }
     }
 }
