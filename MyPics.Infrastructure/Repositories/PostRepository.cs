@@ -105,7 +105,7 @@ namespace MyPics.Infrastructure.Repositories
             {
                 var posts = _context.Posts
                     .Where(x => x.UserId == userId)
-                    .OrderBy(x => x.DatePosted)
+                    .OrderByDescending(x => x.DatePosted)
                     .Include(x => x.User)
                     .Include(x => x.Pictures)
                     .ProjectTo<PostDto>(_mapper.ConfigurationProvider)
@@ -128,7 +128,7 @@ namespace MyPics.Infrastructure.Repositories
                     .Where(x => userIds.Contains(x.UserId))
                     .Include(x => x.User)
                     .Include(x => x.Pictures)
-                    .OrderBy(x => x.DatePosted)
+                    .OrderByDescending(x => x.DatePosted)
                     .ProjectTo<PostDto>(_mapper.ConfigurationProvider)
                     .AsNoTracking();
                 
