@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using MyPics.Domain.DTOs;
 using MyPics.Infrastructure.Helpers;
 using MyPics.Infrastructure.Helpers.PaginationParameters;
@@ -18,5 +19,6 @@ namespace MyPics.Infrastructure.Interfaces
         Task<bool> RejectFollow(int userId, int followerId);
         Task<bool> RemoveFollower(int userId, int followerId);
         Task<PagedList<UserForFollowDto>> GetNotAcceptedFollows (UserParameters parameters, int userId);
+        Task<IEnumerable<int>> GetAllAcceptedFollowIds(int userId);
     }
 }
