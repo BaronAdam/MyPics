@@ -1,15 +1,15 @@
 namespace MyPics.Infrastructure.Helpers.PaginationParameters
 {
-    public class PostParameters
+    public class CommentParameters
     {
-        private const int MaxPageSize = 30;
+        private const int MaxPageSize = 50;
         private readonly int _pageNumber = 1;
-        private readonly int _pageSize = 21;
+        private readonly int _pageSize = 20;
 
         public int PageSize
         {
             get => _pageSize;
-            init => _pageSize = value <= 0 ? 21 : value > MaxPageSize ? MaxPageSize : value;
+            init => _pageSize = value <= 0 ? 20 : value > MaxPageSize ? MaxPageSize : value;
         }
 
         public int PageNumber

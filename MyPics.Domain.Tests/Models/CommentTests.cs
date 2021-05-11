@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MyPics.Domain.Models;
@@ -21,7 +22,9 @@ namespace MyPics.Domain.Tests.Models
                 Content = "Test Content",
                 IsReply = true,
                 ParentCommentId = 1,
-                Likes = new List<CommentLike>()
+                Likes = new List<CommentLike>(),
+                IsDeleted = true,
+                DatePosted = new DateTime(2021, 2, 1)
             };
 
             entity.Should().NotBeNull();
@@ -34,6 +37,8 @@ namespace MyPics.Domain.Tests.Models
             entity.IsReply.Should().BeTrue();
             entity.ParentCommentId.Should().Be(1);
             entity.Likes.Should().BeEmpty();
+            entity.IsDeleted.Should().BeTrue();
+            entity.DatePosted.Should().Be(new DateTime(2021, 2, 1));
         }
     }
 }

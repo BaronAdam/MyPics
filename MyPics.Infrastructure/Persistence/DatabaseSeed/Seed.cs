@@ -22,6 +22,7 @@ namespace MyPics.Infrastructure.Persistence.DatabaseSeed
             SeedUsers();
             SeedFollows();
             SeedPosts();
+            SeedComments();
         }
         
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
@@ -98,6 +99,44 @@ namespace MyPics.Infrastructure.Persistence.DatabaseSeed
                         _context.Posts.Add(post);
                     }
                 }
+                _context.SaveChanges();
+            }
+        }
+
+        private void SeedComments()
+        {
+            var rnd = new Random();
+            if (!_context.Comments.Any())
+            {
+                for (var i = 1; i <= 20; i++)
+                {
+                    _context.Comments.Add(new Comment
+                    {
+                        PostId = i,
+                        UserId = rnd.Next(1, 6),
+                        Content = $"Comment no. {i}",
+                        DatePosted = DateTime.Now.AddMinutes(-rnd.Next(30, 61))
+                    });
+                }
+
+                _context.SaveChanges();
+                
+                for (var i = 1; i <= 20; i++)
+                {
+                    for (var j = 1; j <= 5; j++)
+                    {
+                        _context.Comments.Add(new Comment
+                        {
+                            PostId = i,
+                            ParentCommentId = i,
+                            UserId = j,
+                            IsReply = true,
+                            Content = $"Reply no. {j}",
+                            DatePosted = DateTime.Now.AddMinutes(-rnd.Next(0, 31))
+                        });
+                    }
+                }
+                
                 _context.SaveChanges();
             }
         }

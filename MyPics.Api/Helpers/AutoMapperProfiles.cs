@@ -16,6 +16,9 @@ namespace MyPics.Api.Helpers
             CreateMap<Post, PostDto>();
             CreateMap<User, UserForPostDto>();
             CreateMap<Picture, PictureForPostDto>();
+            CreateMap<CommentForAddDto, Comment>();
+            CreateMap<User, UserForCommentDto>();
+            CreateMap<Comment, CommentForListDto>();
         }
     }
 }

@@ -343,5 +343,32 @@ namespace MyPics.Infrastructure.Tests.Repositories
             
             result.Should().BeNull();
         }
+
+        [Test]
+        public async Task GetPostById_ExistingPost_ReturnsPost()
+        {
+            var result = await _repository.GetById(1);
+
+            result.Should().NotBeNull();
+            result.Id.Should().Be(1);
+        }
+        
+        [Test]
+        public async Task GetPostById_NotExistingPost_ReturnsNull()
+        {
+            var result = await _repository.GetById(100);
+
+            result.Should().BeNull();
+        }
+        
+        [Test]
+        public async Task GetPostById_Exception_ReturnsNull()
+        {
+            _repository = new PostRepository(null, null);
+            
+            var result = await _repository.GetById(1);
+
+            result.Should().BeNull();
+        }
     }
 }
