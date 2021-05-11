@@ -9,7 +9,7 @@ namespace MyPics.Infrastructure.Helpers.PaginationParameters
         public int PageSize
         {
             get => _pageSize;
-            init => _pageSize = value <= 0 ? 20 : value > MaxPageSize ? MaxPageSize : value;
+            init => _pageSize = value <= 0 ? 21 : value > MaxPageSize ? MaxPageSize : value;
         }
 
         public int PageNumber
