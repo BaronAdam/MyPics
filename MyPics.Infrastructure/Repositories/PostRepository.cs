@@ -141,6 +141,23 @@ namespace MyPics.Infrastructure.Repositories
             }
         }
 
+        public async Task<Post> GetById(int postId)
+        {
+            try
+            {
+                return await _context.Posts
+                    .Where(x => x.Id == postId)
+                    .Include(x => x.User)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
+        
         private async Task<Post> GetPostById(int postId)
         {
             try
