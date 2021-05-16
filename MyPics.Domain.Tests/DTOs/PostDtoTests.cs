@@ -18,6 +18,7 @@ namespace MyPics.Domain.Tests.DTOs
                 Description = "testDescription",
                 DatePosted = new DateTime(2021, 01, 01),
                 NumberOfPictures = 1,
+                NumberOfLikes = 1,
                 User = new UserForPostDto(),
                 Pictures = new List<PictureForPostDto>()
             };
@@ -27,6 +28,7 @@ namespace MyPics.Domain.Tests.DTOs
             entity.Description.Should().Be("testDescription");
             entity.DatePosted.Should().Be(new DateTime(2021, 01, 01));
             entity.NumberOfPictures.Should().Be(1);
+            entity.NumberOfLikes.Should().Be(1);
             entity.User.Should().BeEquivalentTo(new UserForPostDto());
             entity.Pictures.Should().BeEmpty();
         }
