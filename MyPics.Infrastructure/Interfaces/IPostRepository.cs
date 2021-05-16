@@ -16,5 +16,6 @@ namespace MyPics.Infrastructure.Interfaces
         Task<PostDto> GetPostForUser(int userId, int postId);
         Task<PagedList<PostDto>> GetPostsForUser(int userId, PostParameters parameters);
         Task<PagedList<PostDto>> GetPostsForFeed(List<int> userIds, PostParameters parameters);
+        Task<int> GetNumberOfLikesForPost(int postId);
     }
 }

@@ -105,6 +105,19 @@ namespace MyPics.Infrastructure.Repositories
             }
         }
 
+        public async Task<int> GetNumberOfLikesForComment(int commentId)
+        {
+            try
+            {
+                return await _context.CommentLikes.Where(x => x.CommentId == commentId).CountAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return -1;
+            }
+        }
+
         private async Task<Comment> Update(Comment comment)
         {
             try

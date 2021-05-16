@@ -141,6 +141,19 @@ namespace MyPics.Infrastructure.Repositories
             }
         }
 
+        public async Task<int> GetNumberOfLikesForPost(int postId)
+        {
+            try
+            {
+                return await _context.PostLikes.Where(x => x.PostId == postId).CountAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return -1;
+            }
+        }
+
         public async Task<Post> GetById(int postId)
         {
             try
