@@ -47,57 +47,9 @@ namespace MyPics.Infrastructure.Tests.Repositories
             var mapper = config.CreateMapper();
             
             _context = new MyPicsDbContext(options, configuration.Object);
+            
+            Seed();
 
-            _context.Posts.Add(new Post
-            {
-                Id = 1,
-                UserId = 1,
-                DatePosted = new DateTime(2021, 1, 1)
-            });
-            _context.Posts.Add(new Post
-            {
-                Id = 2,
-                UserId = 1,
-                DatePosted = new DateTime(2021, 1, 1)
-            });
-            
-            _context.Posts.Add(new Post
-            {
-                Id = 3,
-                UserId = 2,
-                DatePosted = new DateTime(2021, 1, 1)
-            });
-            
-            _context.Pictures.Add(new Picture
-            {
-                Id = 1,
-                PostId = 1
-            });
-            
-            _context.Pictures.Add(new Picture
-            {
-                Id = 2,
-                PostId = 2
-            });
-
-            _context.Pictures.Add(new Picture
-            {
-                Id = 3,
-                PostId = 3
-            });
-
-            _context.Users.Add(new User
-            {
-                Id = 1
-            });
-            
-            _context.Users.Add(new User
-            {
-                Id = 2
-            });
-
-            _context.SaveChanges();
-            
             _repository = new PostRepository(_context, mapper);
         }
         
@@ -369,6 +321,99 @@ namespace MyPics.Infrastructure.Tests.Repositories
             var result = await _repository.GetById(1);
 
             result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetNumberOfLikesForPost_ExistingLikes_ReturnsExpected()
+        {
+            var result = await _repository.GetNumberOfLikesForPost(1);
+
+            result.Should().BePositive();
+        }
+
+        [Test]
+        public async Task GetNumberOfLikesForPost_NotExistingLikes_ReturnsExpected()
+        {
+            var result = await _repository.GetNumberOfLikesForPost(2);
+
+            result.Should().Be(0);
+        }
+        
+        [Test]
+        public async Task GetNumberOfLikesForPost_Exception_ReturnsExpected()
+        {
+            _repository = new PostRepository(null, null);
+            
+            var result = await _repository.GetNumberOfLikesForPost(1);
+
+            result.Should().Be(-1);
+        }
+
+        private void Seed()
+        {
+            _context.Posts.Add(new Post
+            {
+                Id = 1,
+                UserId = 1,
+                DatePosted = new DateTime(2021, 1, 1)
+            });
+            _context.Posts.Add(new Post
+            {
+                Id = 2,
+                UserId = 1,
+                DatePosted = new DateTime(2021, 1, 1)
+            });
+            
+            _context.Posts.Add(new Post
+            {
+                Id = 3,
+                UserId = 2,
+                DatePosted = new DateTime(2021, 1, 1)
+            });
+            
+            _context.Pictures.Add(new Picture
+            {
+                Id = 1,
+                PostId = 1
+            });
+            _context.Pictures.Add(new Picture
+            {
+                Id = 2,
+                PostId = 2
+            });
+            _context.Pictures.Add(new Picture
+            {
+                Id = 3,
+                PostId = 3
+            });
+
+            _context.Users.Add(new User
+            {
+                Id = 1
+            });
+            _context.Users.Add(new User
+            {
+                Id = 2
+            });
+
+            _context.PostLikes.Add(new PostLike
+            {
+                PostId = 1,
+                UserId = 1
+            });
+            _context.PostLikes.Add(new PostLike
+            {
+                PostId = 1,
+                UserId = 2
+            });
+
+            _context.Comments.Add(new Comment
+            {
+                PostId = 1,
+                UserId = 1
+            });
+
+            _context.SaveChanges();
         }
     }
 }

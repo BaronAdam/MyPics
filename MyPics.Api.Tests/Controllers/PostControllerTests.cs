@@ -371,7 +371,7 @@ namespace MyPics.Api.Tests.Controllers
 
             var result = await _controller.GetPostsForUser(1, new PostParameters());
 
-            result.Should().BeOfType<StatusCodeResult>();
+            result.Should().BeOfType<BadRequestObjectResult>();
         }
 
         [Test]

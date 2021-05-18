@@ -68,7 +68,9 @@ namespace MyPics.Infrastructure.Repositories
             {
                 if (userId != post.UserId) return false;
                 var pictures = _context.Pictures.Where(x => x.PostId == postId);
-
+                var postLikes = _context.PostLikes.Where(x => x.PostId == postId);
+                
+                _context.PostLikes.RemoveRange(postLikes);
                 _context.Posts.Remove(post);
                 _context.Pictures.RemoveRange(pictures);
 
