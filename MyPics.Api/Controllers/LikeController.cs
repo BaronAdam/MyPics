@@ -1,7 +1,6 @@
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyPics.Api.Extensions;
@@ -22,16 +21,14 @@ namespace MyPics.Api.Controllers
         private readonly IPostRepository _postRepository;
         private readonly IFollowRepository _followRepository;
         private readonly ICommentRepository _commentRepository;
-        private readonly IMapper _mapper;
 
         public LikeController(ILikeRepository likeRepository, IPostRepository postRepository, 
-            IFollowRepository followRepository, ICommentRepository commentRepository, IMapper mapper)
+            IFollowRepository followRepository, ICommentRepository commentRepository)
         {
             _likeRepository = likeRepository;
             _postRepository = postRepository;
             _followRepository = followRepository;
             _commentRepository = commentRepository;
-            _mapper = mapper;
         }
 
         [HttpPost("post/{postId}")]
@@ -113,7 +110,7 @@ namespace MyPics.Api.Controllers
             return result ? Ok() : BadRequest("There was an error while processing Your request.");
         }
         
-        [HttpDelete("post/{commentId}")]
+        [HttpDelete("comment/{commentId}")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.Unauthorized)]
@@ -140,9 +137,25 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetLikesForPost(int postId, [FromQuery] LikeParameters parameters)
         {
+            var post = await _postRepository.GetById(postId);
+
+            if (post == null) return BadRequest("Could not find specified post.");
+
+            if (post.User.IsPrivate)
+            {
+                if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                    return Unauthorized();
+                
+                var followStatus = await _followRepository.GetFollowStatus(userId, post.UserId);
+                
+                if (followStatus == null) return BadRequest("There was an error while processing Your request.");
+
+                if (!followStatus.IsAlreadyInFollows || !followStatus.IsFollowAccepted) return Unauthorized();
+            }
+            
             var likes = await _likeRepository.GetLikesForPost(postId, parameters);
             
-            if (likes == null) BadRequest("There was an error while processing Your request.");
+            if (likes == null) return BadRequest("There was an error while processing Your request.");
             
             Response.AddPaginationHeader(likes.CurrentPage, likes.PageSize, likes.TotalCount, likes.TotalPages);
 
@@ -157,9 +170,29 @@ namespace MyPics.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetLikesForComment(int commentId, [FromQuery] LikeParameters parameters)
         {
+            var comment = await _commentRepository.GetById(commentId);
+
+            if (comment == null) return BadRequest("Could not find specified post.");
+            
+            var post = await _postRepository.GetById(comment.PostId);
+
+            if (post == null) return BadRequest("Could not find specified post.");
+
+            if (post.User.IsPrivate)
+            {
+                if (!TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty, out var userId))
+                    return Unauthorized();
+                
+                var followStatus = await _followRepository.GetFollowStatus(userId, post.UserId);
+                
+                if (followStatus == null) return BadRequest("There was an error while processing Your request.");
+
+                if (!followStatus.IsAlreadyInFollows || !followStatus.IsFollowAccepted) return Unauthorized();
+            }
+            
             var likes = await _likeRepository.GetLikesForComment(commentId, parameters);
             
-            if (likes == null) BadRequest("There was an error while processing Your request.");
+            if (likes == null) return BadRequest("There was an error while processing Your request.");
             
             Response.AddPaginationHeader(likes.CurrentPage, likes.PageSize, likes.TotalCount, likes.TotalPages);
 
