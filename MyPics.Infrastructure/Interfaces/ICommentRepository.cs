@@ -14,5 +14,6 @@ namespace MyPics.Infrastructure.Interfaces
         Task<Comment> Update(CommentForEditDto commentDto);
         Task<PagedList<CommentForListDto>> GetCommentsForPost(int postId, CommentParameters parameters);
         Task<PagedList<CommentForListDto>> GetRepliesForComment(int commentId, CommentParameters parameters);
+        Task<int> GetNumberOfLikesForComment(int commentId);
     }
 }

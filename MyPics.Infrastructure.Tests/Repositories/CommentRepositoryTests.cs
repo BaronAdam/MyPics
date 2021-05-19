@@ -232,6 +232,32 @@ namespace MyPics.Infrastructure.Tests.Repositories
             result.Should().BeNull();
         }
 
+        [Test]
+        public async Task GetNumberOfLikesForComment_ExistingLikes_ReturnsExpected()
+        {
+            var result = await _repository.GetNumberOfLikesForComment(1);
+
+            result.Should().BePositive();
+        }
+        
+        [Test]
+        public async Task GetNumberOfLikesForComment_NotExistingLikes_ReturnsExpected()
+        {
+            var result = await _repository.GetNumberOfLikesForComment(2);
+
+            result.Should().Be(0);
+        }
+        
+        [Test]
+        public async Task GetNumberOfLikesForComment_Exception_ReturnsExpected()
+        {
+            _repository = new CommentRepository(null, null);
+            
+            var result = await _repository.GetNumberOfLikesForComment(2);
+
+            result.Should().Be(-1);
+        }
+
         private void Seed()
         {
             _context.Users.Add(new User
@@ -310,6 +336,17 @@ namespace MyPics.Infrastructure.Tests.Repositories
                 PostId = 2,
                 UserId = 2,
                 ParentCommentId = 3
+            });
+            
+            _context.CommentLikes.Add(new CommentLike
+            {
+                CommentId = 1,
+                UserId = 1
+            });
+            _context.CommentLikes.Add(new CommentLike
+            {
+                CommentId = 1,
+                UserId = 2
             });
 
             try

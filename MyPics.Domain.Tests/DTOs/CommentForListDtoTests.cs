@@ -19,6 +19,7 @@ namespace MyPics.Domain.Tests.DTOs
                 ParentCommentId = 2,
                 IsDeleted = true,
                 DatePosted = new DateTime(2021, 1, 1),
+                NumberOfLikes = 1,
                 User = new UserForCommentDto()
             };
 
@@ -29,6 +30,7 @@ namespace MyPics.Domain.Tests.DTOs
             entity.ParentCommentId.Should().Be(2);
             entity.IsDeleted.Should().BeTrue();
             entity.DatePosted.Should().Be(new DateTime(2021, 1, 1));
+            entity.NumberOfLikes.Should().Be(1);
             entity.User.Should().BeEquivalentTo(new UserForCommentDto());
         }
     }

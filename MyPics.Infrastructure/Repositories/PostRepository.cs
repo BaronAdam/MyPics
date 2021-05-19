@@ -68,7 +68,9 @@ namespace MyPics.Infrastructure.Repositories
             {
                 if (userId != post.UserId) return false;
                 var pictures = _context.Pictures.Where(x => x.PostId == postId);
-
+                var postLikes = _context.PostLikes.Where(x => x.PostId == postId);
+                
+                _context.PostLikes.RemoveRange(postLikes);
                 _context.Posts.Remove(post);
                 _context.Pictures.RemoveRange(pictures);
 
@@ -138,6 +140,19 @@ namespace MyPics.Infrastructure.Repositories
             {
                 Console.WriteLine(e);
                 return null;
+            }
+        }
+
+        public async Task<int> GetNumberOfLikesForPost(int postId)
+        {
+            try
+            {
+                return await _context.PostLikes.Where(x => x.PostId == postId).CountAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return -1;
             }
         }
 

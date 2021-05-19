@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyPics.Api.Extensions;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
 using MyPics.Infrastructure.Helpers;
@@ -136,6 +137,13 @@ namespace MyPics.Api.Controllers
                 };
             }
 
+            foreach (var comment in comments)
+            {
+                comment.NumberOfLikes = await _commentRepository.GetNumberOfLikesForComment(comment.Id);
+            }
+
+            Response.AddPaginationHeader(comments.CurrentPage, comments.PageSize, comments.TotalCount, comments.TotalPages);
+
             return Ok(comments);
         }
         
@@ -179,6 +187,13 @@ namespace MyPics.Api.Controllers
                     DisplayName = "[Removed]"
                 };
             }
+            
+            foreach (var commentDto in comments)
+            {
+                commentDto.NumberOfLikes = await _commentRepository.GetNumberOfLikesForComment(comment.Id);
+            }
+            
+            Response.AddPaginationHeader(comments.CurrentPage, comments.PageSize, comments.TotalCount, comments.TotalPages);
 
             return Ok(comments);
         }

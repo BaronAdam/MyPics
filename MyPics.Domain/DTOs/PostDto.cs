@@ -9,6 +9,7 @@ namespace MyPics.Domain.DTOs
         public string Description { get; set; }
         public DateTime DatePosted { get; set; }
         public int NumberOfPictures { get; set; }
+        public int NumberOfLikes { get; set; }
         public UserForPostDto User { get; set; }
         public ICollection<PictureForPostDto> Pictures { get; set; }
     }

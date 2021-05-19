@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyPics.Api.Extensions;
 using MyPics.Domain.DTOs;
 using MyPics.Domain.Models;
 using MyPics.Infrastructure.Helpers.PaginationParameters;
@@ -147,8 +148,12 @@ namespace MyPics.Api.Controllers
             }
 
             var result = await _postRepository.GetPostForUser(userId, postId);
+            
+            if (result == null) return BadRequest("Could not find specified post.");
 
-            return result != null ? Ok(result) : BadRequest("Could not find specified post.");
+            result.NumberOfLikes = await _postRepository.GetNumberOfLikesForPost(result.Id);
+
+            return Ok(result);
         }
 
         [AllowAnonymous]
@@ -177,7 +182,16 @@ namespace MyPics.Api.Controllers
 
             var result = await _postRepository.GetPostsForUser(userId, parameters);
             
-            return result != null ? Ok(result) : StatusCode((int)HttpStatusCode.InternalServerError);
+            if (result == null) return BadRequest("There was an error while processing Your request.");
+            
+            foreach (var post in result)
+            {
+                post.NumberOfLikes = await _postRepository.GetNumberOfLikesForPost(post.Id);
+            }
+            
+            Response.AddPaginationHeader(result.CurrentPage, result.PageSize, result.TotalCount, result.TotalPages);
+
+            return Ok(result);
         }
         
         [HttpGet("feed")]
@@ -195,7 +209,16 @@ namespace MyPics.Api.Controllers
 
             var posts = await _postRepository.GetPostsForFeed(ids.ToList(), parameters);
             
-            return posts != null ? Ok(posts) : StatusCode((int)HttpStatusCode.InternalServerError);
+            if (posts == null) return StatusCode((int)HttpStatusCode.InternalServerError);
+
+            foreach (var post in posts)
+            {
+                post.NumberOfLikes = await _postRepository.GetNumberOfLikesForPost(post.Id);
+            }
+            
+            Response.AddPaginationHeader(posts.CurrentPage, posts.PageSize, posts.TotalCount, posts.TotalPages);
+
+            return Ok(posts);
         }
     }
 }
